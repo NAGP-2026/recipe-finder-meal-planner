@@ -18,7 +18,7 @@ npm install @piyushchandel/recipe-components
 
 ## 🔗 GitHub Repository
 
-> https://github.com/piyush-nagp/recipe-finder-meal-planner
+> https://github.com/NAGP-2026/recipe-finder-meal-planner
 
 ---
 
@@ -35,7 +35,7 @@ npm install @piyushchandel/recipe-components
 
 ```bash
 # Clone the repository
-git clone https://github.com/piyush-nagp/recipe-finder-meal-planner.git
+git clone https://github.com/NAGP-2026/recipe-finder-meal-planner.git
 cd Recipe_Finder_Meal_Planner_Assignment_v2
 ```
 
@@ -314,7 +314,7 @@ npm run check     # Type-check with svelte-check
 ## 🔗 Links
 
 - **npm Package:** https://www.npmjs.com/package/@piyushchandel/recipe-components
-- **GitHub:** https://github.com/piyush-nagp/recipe-finder-meal-planner
+- **GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
 - **TheMealDB API Docs:** https://www.themealdb.com/api.php
 
 ---
