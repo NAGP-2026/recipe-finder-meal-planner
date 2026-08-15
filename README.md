@@ -313,9 +313,10 @@ npm run check     # Type-check with svelte-check
 
 ## 🔗 Links
 
-- **npm Package:** https://www.npmjs.com/package/@piyushchandel/recipe-components
-- **GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
-- **TheMealDB API Docs:** https://www.themealdb.com/api.php
+- **🚀 Deployed App:** https://recipe-finder-meal-planner-ten.vercel.app
+- **📦 npm Package:** https://www.npmjs.com/package/@piyushchandel/recipe-components
+- **💻 GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
+- **🍽️ TheMealDB API Docs:** https://www.themealdb.com/api.php
 
 ---
 
