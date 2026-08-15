@@ -8,8 +8,10 @@
 	let scrolled = false;
 
 	onMount(async () => {
-		const { defineCustomElements } = await import('@piyushchandel/recipe-components/loader');
-		defineCustomElements();
+		// Use dist/components (dist-custom-elements output) instead of the lazy-loading loader.
+		// This is bundled eagerly by Vite so it works correctly in production builds on Vercel.
+		// Each component has externalRuntime: false and auto-define-custom-elements behavior.
+		await import('@piyushchandel/recipe-components/dist/components/index.js');
 
 		const handleScroll = () => { scrolled = window.scrollY > 20; };
 		window.addEventListener('scroll', handleScroll, { passive: true });
