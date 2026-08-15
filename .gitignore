@@ -1,0 +1,33 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+recipe-app/.svelte-kit/
+recipe-app/build/
+recipe-app/dist/
+
+# StencilJS build (dist is included in npm publish but excluded from git source)
+recipe-components/dist/
+recipe-components/www/
+recipe-components/loader/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

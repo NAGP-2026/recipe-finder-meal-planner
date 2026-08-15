@@ -1,0 +1,42 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.stars-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star {
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+  color: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+}
+
+.star:hover,
+.star.hovered {
+  transform: scale(1.25);
+  color: #f59e0b;
+  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+}
+
+.star.filled {
+  color: #f59e0b;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+}
+
+.star.small svg { width: 14px; height: 14px; }
+.star.medium svg { width: 20px; height: 20px; }
+.star.large svg { width: 28px; height: 28px; }
+
+.rating-value {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f59e0b;
+  letter-spacing: 0.2px;
+}

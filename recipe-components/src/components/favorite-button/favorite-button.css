@@ -1,0 +1,78 @@
+:host {
+  display: inline-flex;
+}
+
+.fav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+/* Sizes */
+.fav-btn.small  { padding: 6px 12px; font-size: 12px; }
+.fav-btn.small .heart-icon svg { width: 14px; height: 14px; }
+
+.fav-btn.medium { padding: 8px 16px; font-size: 13px; }
+.fav-btn.medium .heart-icon svg { width: 16px; height: 16px; }
+
+.fav-btn.large  { padding: 10px 20px; font-size: 15px; }
+.fav-btn.large .heart-icon svg { width: 20px; height: 20px; }
+
+/* Variants */
+.fav-btn.outline {
+  background: transparent;
+}
+.fav-btn.solid {
+  background: rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.2);
+  color: rgba(244, 63, 94, 0.65);
+}
+
+.fav-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #f43f5e;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
+}
+
+.fav-btn.is-favorite {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.4);
+  color: #f43f5e;
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);
+}
+
+.fav-btn.is-favorite:hover {
+  background: rgba(244, 63, 94, 0.25);
+}
+
+.heart-icon {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s;
+}
+
+.fav-btn.is-favorite .heart-icon {
+  animation: heartbeat 0.4s ease;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.fav-label {
+  white-space: nowrap;
+}
