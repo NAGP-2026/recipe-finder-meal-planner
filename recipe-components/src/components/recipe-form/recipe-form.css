@@ -1,85 +1,91 @@
 /* ══════════════════════════════════════════════════
-   RecipeForm — v1.0.2: Redesigned for better contrast
-   & readability on dark backgrounds
+   RecipeForm — v1.0.3
+   FIXED: CSS class names now match TSX render output
+     .form-body  → .form-grid  (was missing!)
+     .btn-secondary → .btn-cancel (was missing!)
+     .btn-primary   → .btn-submit (was missing!)
+     .required-mark → .required  (was missing!)
+     .form-hint     → .hint      (was missing!)
    ══════════════════════════════════════════════════ */
 :host {
   display: block;
 }
 
+/* ─── Form Card ─────────────────────────────────── */
 .recipe-form {
   background: linear-gradient(160deg, #1c2240 0%, #161b30 100%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   overflow: visible;
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(139, 92, 246, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* Left accent stripe */
+  border-left: 4px solid rgba(255, 107, 53, 0.6);
 }
 
-.form-header {
-  padding: 24px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
-  border-radius: 20px 20px 0 0;
-}
-
-.form-title {
-  font-size: 18px;
-  font-weight: 800;
-  color: #f0f1fa;
-  margin: 0;
-  letter-spacing: -0.3px;
-}
-
-.form-body {
-  padding: 32px;
+/* ─── Fields grid (was wrongly targeting .form-body) */
+.form-grid {
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
+  overflow: visible;
 }
 
+/* ─── Two-column row ────────────────────────────── */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
+/* ─── Field group ───────────────────────────────── */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
+  overflow: visible;
 }
 
-.form-group.full-width {
-  grid-column: 1 / -1;
-}
-
-/* ✅ v1.0.2: Labels now clearly visible (#5c6080 → #a8b0d0) */
+/* ─── Label ─────────────────────────────────────── */
+/* v1.0.3: was #5c6080 — now clearly visible #b0b8da */
 .form-label {
   font-size: 11px;
   font-weight: 700;
-  color: #a8b0d0;
+  color: #b0b8da;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding-left: 2px; /* safety margin from card edge */
 }
 
-.required-mark {
+/* Required asterisk (TSX class: .required not .required-mark) */
+.required {
   color: #f43f5e;
   font-size: 14px;
+  font-weight: 900;
 }
 
-/* ✅ v1.0.2: Inputs — 0.04 → 0.12 background, 0.08 → 0.22 border */
+/* Hint text inside label (TSX class: .hint) */
+.hint {
+  font-size: 10px;
+  font-weight: 500;
+  color: #5c6480;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ─── Inputs / Textarea / Select ────────────────── */
 .form-input,
 .form-select,
 .form-textarea {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
-  padding: 12px 16px;
+  padding: 13px 16px;
   font-size: 14px;
   color: #f0f1fa;
   font-family: inherit;
@@ -87,50 +93,55 @@
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   width: 100%;
   box-sizing: border-box;
+  line-height: 1.5;
 }
 
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
-  border-color: rgba(255, 107, 53, 0.6);
+  border-color: rgba(255, 107, 53, 0.65);
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.11);
 }
 
 .form-input:hover,
 .form-select:hover,
 .form-textarea:hover {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.09);
 }
 
-/* ✅ v1.0.2: Placeholder 0.20 → 0.50 */
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(255, 255, 255, 0.38);
+  font-style: italic;
 }
 
-.form-input.error,
-.form-textarea.error,
-.form-select.error {
+/* Error state on input (triggered by .form-group.has-error) */
+.form-group.has-error .form-input,
+.form-group.has-error .form-textarea,
+.form-group.has-error .form-select {
   border-color: rgba(244, 63, 94, 0.55);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
 }
 
+/* Error message text */
 .error-msg {
   font-size: 12px;
   color: #f87171;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  padding-left: 2px;
 }
 
+/* Select dropdown arrow */
 .form-select {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8b0d0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b0b8da' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 40px;
@@ -141,98 +152,27 @@
   color: #f0f1fa;
 }
 
+/* Textarea */
 .form-textarea {
   resize: vertical;
-  min-height: 110px;
-  line-height: 1.6;
+  min-height: 100px;
 }
 
-.form-hint {
-  font-size: 12px;
-  color: #6b7299;
-  margin-top: 2px;
-}
-
-/* ─── Ingredient list ─────────────────────── */
-.ingredient-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.ingredient-row .form-input {
-  flex: 1;
-}
-
-.remove-ingredient-btn {
-  background: rgba(244, 63, 94, 0.10);
-  border: 1px solid rgba(244, 63, 94, 0.25);
-  color: #f87171;
-  border-radius: 8px;
-  width: 38px;
-  height: 42px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  font-size: 16px;
-}
-
-.remove-ingredient-btn:hover {
-  background: rgba(244, 63, 94, 0.22);
-  border-color: rgba(244, 63, 94, 0.45);
-  transform: scale(1.05);
-}
-
-.add-ingredient-btn {
-  background: rgba(255, 107, 53, 0.08);
-  border: 1.5px dashed rgba(255, 107, 53, 0.35);
-  color: #ff8a5e;
-  border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.add-ingredient-btn:hover {
-  background: rgba(255, 107, 53, 0.16);
-  border-color: rgba(255, 107, 53, 0.55);
-  transform: translateY(-1px);
-}
-
-/* ─── Image preview ───────────────────────── */
-.image-preview {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-top: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-/* ─── Form actions ────────────────────────── */
+/* ─── Form actions footer ────────────────────────── */
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding: 22px 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  align-items: center;
+  padding: 20px 32px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 16px 16px;
 }
 
-.btn {
+/* ─── Cancel button (TSX class: btn-cancel) ──────── */
+/* v1.0.3: was .btn-secondary — never matched TSX! */
+.btn-cancel {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -241,51 +181,58 @@
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
   font-family: inherit;
   letter-spacing: 0.2px;
+  transition: all 0.2s;
+  /* Rose/red outlined style — clearly "cancel/discard" */
+  background: rgba(244, 63, 94, 0.08);
+  color: #f87171;
+  border: 1.5px solid rgba(244, 63, 94, 0.35);
 }
 
-.btn-primary {
+.btn-cancel:hover {
+  background: rgba(244, 63, 94, 0.16);
+  border-color: rgba(244, 63, 94, 0.6);
+  color: #fca5a5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.2);
+}
+
+.btn-cancel:active {
+  transform: translateY(0);
+}
+
+/* ─── Submit button (TSX class: btn-submit) ──────── */
+/* v1.0.3: was .btn-primary — never matched TSX! */
+.btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  transition: all 0.2s;
+  border: none;
+  /* Orange gradient */
   background: linear-gradient(135deg, #ff6b35, #e85520);
   color: white;
   box-shadow: 0 4px 18px rgba(255, 107, 53, 0.4);
 }
 
-.btn-primary:hover {
+.btn-submit:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(255, 107, 53, 0.55);
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.08);
-  color: #b0b8d8;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+.btn-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(255, 107, 53, 0.35);
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #f0f1fa;
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-/* ─── Section title ───────────────────────── */
-.form-section-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #ff8a5e;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 2px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.form-section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 107, 53, 0.25), transparent);
+.btn-submit svg {
+  flex-shrink: 0;
 }
