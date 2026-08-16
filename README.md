@@ -7,14 +7,14 @@ A full-featured, modern Recipe Finder & Meal Planner platform built with **Svelt
 ## 📦 npm Package (StencilJS Component Library)
 
 > **Package:** [`@piyushchandel/recipe-components`](https://www.npmjs.com/package/@piyushchandel/recipe-components)  
-> **Current version: v1.0.2**
+> **Current version: v1.0.4**
 
 ```bash
-# Install latest (v1.0.2)
+# Install latest (v1.0.4)
 npm install @piyushchandel/recipe-components
 
 # Install a specific version
-npm install @piyushchandel/recipe-components@1.0.2
+npm install @piyushchandel/recipe-components@1.0.4
 ```
 
 🔗 **npm link:** https://www.npmjs.com/package/@piyushchandel/recipe-components
@@ -23,7 +23,9 @@ npm install @piyushchandel/recipe-components@1.0.2
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.2** *(current / latest)* | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
+| **v1.0.4** *(current / latest)* | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
+| **v1.0.3** | Recipe form — corrected CSS class names to match TSX output (`.form-grid`, `.btn-cancel`, `.btn-submit`); orange gradient submit button; rose/red cancel button |
+| **v1.0.2** | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
 | **v1.0.1** | Search bar — background opacity 0.06→0.18, border 0.12→0.35, placeholder 0.28→0.60, icon opacity 0.5→0.75 |
 | **v1.0.0** | Initial release — 10 components: RecipeCard, SearchBar, FilterPanel, MealPlanCard, FavoriteButton, RecipeBadge, RatingStars, RecipeModal, RecipeForm, LoadingSpinner |
 
@@ -138,7 +140,7 @@ Recipe_Finder_Meal_Planner_Assignment_v2/
 ### 🔍 Recipe Discovery
 - Search recipes by name, ingredient, or cuisine
 - Browse a curated feed of random recipes
-- Filter by **category** (Chicken, Beef, Dessert, etc.)
+- Filter by **category** (Chicken, Dessert, Pasta, Seafood, etc.)
 - Filter by **cuisine/area** (Italian, Japanese, Mexican, etc.)
 - Sort by name (A–Z, Z–A)
 
@@ -285,7 +287,7 @@ Stencil uses lazy loading — it fetches component JS chunks (`p-abc123.entry.js
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.2/dist/recipe-components/recipe-components.esm.js">
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.4/dist/recipe-components/recipe-components.esm.js">
 </script>
 ```
 
@@ -324,7 +326,7 @@ The app uses the following **custom web components** from `@piyushchandel/recipe
 
 | Component | Tag | Purpose |
 |-----------|-----|---------|
-| RecipeCard | `<recipe-card>` | Recipe with image, title, category, favorite & action buttons |
+| RecipeCard | `<recipe-card>` | Recipe with image, title, favorite & action buttons |
 | SearchBar | `<search-bar>` | Search input with debounce, submit & clear |
 | FilterPanel | `<filter-panel>` | Category, area, and sort-by filters |
 | MealPlanCard | `<meal-plan-card>` | Single meal slot in the planner grid |
@@ -446,7 +448,7 @@ npm run check     # Type-check with svelte-check
 ## 🔗 Links
 
 - **🚀 Deployed App:** https://recipe-finder-meal-planner-ten.vercel.app
-- **📦 npm Package (v1.0.2 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
+- **📦 npm Package (v1.0.4 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
 - **💻 GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
 - **🍽️ TheMealDB API Docs:** https://www.themealdb.com/api.php
 
