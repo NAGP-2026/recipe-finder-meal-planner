@@ -249,6 +249,12 @@ body::before {
   line-height: 1.65; font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .hero-search { width: 100%; max-width: 640px; }
+/* Search bar: visible border applied to host element (works across CDN versions) */
+.hero-search search-bar {
+  display: block;
+  border-radius: 100px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 8px 40px rgba(0, 0, 0, 0.4);
+}
 
 .hero-quick-tags {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;

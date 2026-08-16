@@ -45,7 +45,13 @@
 	$: areasJson = JSON.stringify(areas.map(a => ({ value: a, label: a })));
 
 	$: filteredRecipes = (() => {
-		let result = [...recipes, ...$userRecipes];
+		// Exclude beef recipes from all views
+		const EXCLUDE_TERMS = ['beef'];
+		let result = [...recipes, ...$userRecipes].filter(r => {
+			const title = r.title.toLowerCase();
+			const cat = (r.category || '').toLowerCase();
+			return !EXCLUDE_TERMS.some(term => title.includes(term) || cat.includes(term));
+		});
 		const seen = new Set<string>();
 		result = result.filter(r => { if (seen.has(r.id)) return false; seen.add(r.id); return true; });
 		if (filterState.sortBy === 'name-asc') result.sort((a, b) => a.title.localeCompare(b.title));
