@@ -4,8 +4,10 @@
 	import { toasts } from '$lib/stores';
 	import '../app.css';
 
-	let mobileMenuOpen = false;
-	let scrolled = false;
+	let { children } = $props();
+
+	let mobileMenuOpen = $state(false);
+	let scrolled = $state(false);
 
 	onMount(() => {
 		const handleScroll = () => { scrolled = window.scrollY > 20; };
@@ -65,7 +67,7 @@
 	</nav>
 
 	<main id="main-content" class="main-content" tabindex="-1">
-		<slot />
+		{@render children()}
 	</main>
 
 	<footer class="app-footer" role="contentinfo">

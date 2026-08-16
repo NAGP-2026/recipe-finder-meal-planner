@@ -3,11 +3,11 @@
 	import { goto } from '$app/navigation';
 	import {
 		favoriteIds, addFavorite, removeFavorite,
-		addToMealPlan, showToast, userRecipes, deleteUserRecipe
+		showToast, userRecipes, deleteUserRecipe
 	} from '$lib/stores';
 	import { searchRecipes, getRandomRecipes, getCategories, getAreas, getRecipesByCategory, getRecipesByArea } from '$lib/api';
 	import type { Recipe, FilterState } from '$lib/types';
-	import { DAYS_OF_WEEK, MEAL_TYPES } from '$lib/types';
+	import MealPlanPicker from '$lib/components/MealPlanPicker.svelte';
 
 	let recipes: Recipe[] = [];
 	let loading = true;
@@ -17,8 +17,6 @@
 	let filterState: FilterState = { category: '', area: '', sortBy: 'default' };
 	let showMealPlanPicker = false;
 	let selectedRecipeForMealPlan: Recipe | null = null;
-	let selectedDay = DAYS_OF_WEEK[0];
-	let selectedMealType = MEAL_TYPES[2];
 
 	// Remove Beef from categories
 	const EXCLUDED_CATEGORIES = ['Beef'];
@@ -140,14 +138,7 @@
 		if (selectedRecipeForMealPlan) showMealPlanPicker = true;
 	}
 
-	function confirmMealPlan() {
-		if (!selectedRecipeForMealPlan) return;
-		addToMealPlan(selectedDay, selectedMealType, {
-			recipeId: selectedRecipeForMealPlan.id,
-			recipeTitle: selectedRecipeForMealPlan.title,
-			recipeImage: selectedRecipeForMealPlan.image,
-		});
-		showToast(`Added to ${selectedDay} ${selectedMealType}! 📅`);
+	function closePicker() {
 		showMealPlanPicker = false;
 		selectedRecipeForMealPlan = null;
 	}
@@ -303,41 +294,4 @@
 	</div>
 </div>
 
-<!-- ══════════ MEAL PLAN MODAL ══════════════════════════════ -->
-{#if showMealPlanPicker && selectedRecipeForMealPlan}
-	<div class="modal-backdrop" role="dialog" aria-modal="true">
-		<div class="meal-picker-modal">
-			<div class="modal-header">
-				<h3>📅 Add to Meal Plan</h3>
-				<button class="modal-close" onclick={() => showMealPlanPicker = false}>✕</button>
-			</div>
-			<div class="modal-body">
-				<p class="recipe-name">📖 {selectedRecipeForMealPlan.title}</p>
-				<div class="picker-group">
-					<label>Day of the Week</label>
-					<div class="day-grid">
-						{#each DAYS_OF_WEEK as day}
-							<button class="day-btn {selectedDay === day ? 'selected' : ''}" onclick={() => selectedDay = day}>
-								{day.slice(0, 3)}
-							</button>
-						{/each}
-					</div>
-				</div>
-				<div class="picker-group">
-					<label>Meal Type</label>
-					<div class="meal-type-grid">
-						{#each MEAL_TYPES as type}
-							<button class="meal-type-btn {selectedMealType === type ? 'selected' : ''}" onclick={() => selectedMealType = type}>
-								{type === 'breakfast' ? '🌅' : type === 'lunch' ? '☀️' : type === 'dinner' ? '🌙' : '🍎'} {type}
-							</button>
-						{/each}
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-secondary" onclick={() => showMealPlanPicker = false}>Cancel</button>
-				<button class="btn btn-primary" onclick={confirmMealPlan}>Add to Plan 📅</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<MealPlanPicker show={showMealPlanPicker} recipe={selectedRecipeForMealPlan} onclose={closePicker} />

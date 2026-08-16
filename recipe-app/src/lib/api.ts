@@ -206,17 +206,3 @@ export async function getAreas(): Promise<string[]> {
 	}
 }
 
-export async function getRecipesByLetter(letter: string): Promise<Recipe[]> {
-	const key = `letter:${letter}`;
-	const cached = getCached<Recipe[]>(key, TTL_LONG);
-	if (cached) return cached;
-	try {
-		const res = await fetchWithTimeout(`${BASE_URL}/search.php?f=${letter}`);
-		const data = await res.json();
-		const result = (data.meals || []).map(parseMealToRecipe);
-		setCached(key, result);
-		return result;
-	} catch {
-		return [];
-	}
-}
