@@ -7,11 +7,25 @@
 		<meta name="description" content="RecipeHub — Discover, save & plan amazing recipes from around the world" />
 		<meta name="theme-color" content="#080B14" />
 		<title>RecipeHub — Discover & Plan Amazing Meals</title>
+
+		<!-- DNS + connection pre-warming for critical third-party origins -->
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+		<link rel="preconnect" href="https://www.themealdb.com" crossorigin />
+		<link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+		<link rel="dns-prefetch" href="https://www.themealdb.com" />
+		<link rel="dns-prefetch" href="https://www.themealthumb.com" />
+
+		<!-- Google Fonts -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-		<!-- StencilJS component library loaded via CDN so all lazy-loaded chunks resolve correctly in production -->
+
+		<!-- StencilJS component library via jsDelivr CDN
+		     Loading from CDN means all lazy-loaded chunk files (p-*.entry.js) are
+		     served from the same CDN origin — Stencil's runtime resolves them correctly
+		     in both development and production (Vercel) environments. -->
 		<script type="module" src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.0/dist/recipe-components/recipe-components.esm.js"></script>
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

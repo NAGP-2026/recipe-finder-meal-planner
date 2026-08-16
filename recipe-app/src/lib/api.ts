@@ -2,6 +2,22 @@ import type { Recipe, Ingredient } from './types';
 
 const BASE_URL = 'https://www.themealdb.com/api/json/v1/1';
 
+// ─── In-memory cache with TTL ────────────────────────────────────────────────
+// Avoids redundant API requests within the same session (categories, areas, searches)
+const memCache = new Map<string, { data: unknown; ts: number }>();
+const TTL_SHORT = 3 * 60 * 1000;   // 3 min  — random recipes (refreshes if stale)
+const TTL_LONG  = 30 * 60 * 1000;  // 30 min — stable data like categories & areas
+
+function getCached<T>(key: string, ttl: number): T | null {
+	const entry = memCache.get(key);
+	if (entry && Date.now() - entry.ts < ttl) return entry.data as T;
+	return null;
+}
+function setCached<T>(key: string, data: T): void {
+	memCache.set(key, { data, ts: Date.now() });
+}
+
+// ─── Parser ──────────────────────────────────────────────────────────────────
 function parseMealToRecipe(meal: Record<string, string>): Recipe {
 	const ingredients: Ingredient[] = [];
 	for (let i = 1; i <= 20; i++) {
@@ -11,7 +27,6 @@ function parseMealToRecipe(meal: Record<string, string>): Recipe {
 			ingredients.push({ name: ingredient.trim(), measure: measure?.trim() || '' });
 		}
 	}
-
 	return {
 		id: meal.idMeal,
 		title: meal.strMeal,
@@ -27,47 +42,82 @@ function parseMealToRecipe(meal: Record<string, string>): Recipe {
 	};
 }
 
+// ─── Fetch with timeout & retry ───────────────────────────────────────────────
+async function fetchWithTimeout(url: string, timeoutMs = 8000): Promise<Response> {
+	const controller = new AbortController();
+	const id = setTimeout(() => controller.abort(), timeoutMs);
+	try {
+		const res = await fetch(url, { signal: controller.signal });
+		clearTimeout(id);
+		return res;
+	} catch (e) {
+		clearTimeout(id);
+		throw e;
+	}
+}
+
+// ─── API functions ────────────────────────────────────────────────────────────
+
 export async function searchRecipes(query: string): Promise<Recipe[]> {
 	if (!query.trim()) return getRandomRecipes();
+	const key = `search:${query.toLowerCase()}`;
+	const cached = getCached<Recipe[]>(key, TTL_SHORT);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
+		const res = await fetchWithTimeout(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
 		const data = await res.json();
-		return (data.meals || []).map(parseMealToRecipe);
+		const result = (data.meals || []).map(parseMealToRecipe);
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getRecipeById(id: string): Promise<Recipe | null> {
+	const key = `recipe:${id}`;
+	const cached = getCached<Recipe>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/lookup.php?i=${id}`);
+		const res = await fetchWithTimeout(`${BASE_URL}/lookup.php?i=${id}`);
 		const data = await res.json();
 		if (!data.meals || data.meals.length === 0) return null;
-		return parseMealToRecipe(data.meals[0]);
+		const result = parseMealToRecipe(data.meals[0]);
+		setCached(key, result);
+		return result;
 	} catch {
 		return null;
 	}
 }
 
 export async function getRandomRecipes(count: number = 12): Promise<Recipe[]> {
+	const key = `random:${count}`;
+	const cached = getCached<Recipe[]>(key, TTL_SHORT);
+	if (cached) return cached;
 	try {
+		// Batch all random requests in parallel
 		const promises = Array.from({ length: count }, () =>
-			fetch(`${BASE_URL}/random.php`).then(r => r.json())
+			fetchWithTimeout(`${BASE_URL}/random.php`).then(r => r.json())
 		);
 		const results = await Promise.all(promises);
-		return results
+		const result = results
 			.filter(r => r.meals && r.meals.length > 0)
 			.map(r => parseMealToRecipe(r.meals[0]));
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getRecipesByCategory(category: string): Promise<Recipe[]> {
+	const key = `cat:${category}`;
+	const cached = getCached<Recipe[]>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
+		const res = await fetchWithTimeout(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
 		const data = await res.json();
-		return (data.meals || []).map((m: Record<string, string>) => ({
+		const result = (data.meals || []).map((m: Record<string, string>) => ({
 			id: m.idMeal,
 			title: m.strMeal,
 			image: m.strMealThumb,
@@ -78,16 +128,21 @@ export async function getRecipesByCategory(category: string): Promise<Recipe[]> 
 			tags: [],
 			isUserCreated: false,
 		}));
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getRecipesByArea(area: string): Promise<Recipe[]> {
+	const key = `area:${area}`;
+	const cached = getCached<Recipe[]>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
+		const res = await fetchWithTimeout(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
 		const data = await res.json();
-		return (data.meals || []).map((m: Record<string, string>) => ({
+		const result = (data.meals || []).map((m: Record<string, string>) => ({
 			id: m.idMeal,
 			title: m.strMeal,
 			image: m.strMealThumb,
@@ -98,36 +153,53 @@ export async function getRecipesByArea(area: string): Promise<Recipe[]> {
 			tags: [],
 			isUserCreated: false,
 		}));
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getCategories(): Promise<string[]> {
+	const key = 'categories';
+	const cached = getCached<string[]>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/categories.php`);
+		const res = await fetchWithTimeout(`${BASE_URL}/categories.php`);
 		const data = await res.json();
-		return (data.categories || []).map((c: Record<string, string>) => c.strCategory);
+		const result = (data.categories || []).map((c: Record<string, string>) => c.strCategory);
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getAreas(): Promise<string[]> {
+	const key = 'areas';
+	const cached = getCached<string[]>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/list.php?a=list`);
+		const res = await fetchWithTimeout(`${BASE_URL}/list.php?a=list`);
 		const data = await res.json();
-		return (data.meals || []).map((m: Record<string, string>) => m.strArea);
+		const result = (data.meals || []).map((m: Record<string, string>) => m.strArea);
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
 }
 
 export async function getRecipesByLetter(letter: string): Promise<Recipe[]> {
+	const key = `letter:${letter}`;
+	const cached = getCached<Recipe[]>(key, TTL_LONG);
+	if (cached) return cached;
 	try {
-		const res = await fetch(`${BASE_URL}/search.php?f=${letter}`);
+		const res = await fetchWithTimeout(`${BASE_URL}/search.php?f=${letter}`);
 		const data = await res.json();
-		return (data.meals || []).map(parseMealToRecipe);
+		const result = (data.meals || []).map(parseMealToRecipe);
+		setCached(key, result);
+		return result;
 	} catch {
 		return [];
 	}
