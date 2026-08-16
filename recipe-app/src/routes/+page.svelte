@@ -216,11 +216,6 @@
 		</div>
 	</div>
 
-	<!-- Scroll Indicator -->
-	<div class="scroll-indicator">
-		<span>Scroll to explore</span>
-		<div class="scroll-arrow">↓</div>
-	</div>
 </section>
 
 <!-- Section Divider -->
