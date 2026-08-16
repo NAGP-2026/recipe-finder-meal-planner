@@ -39,7 +39,9 @@
 			tags: recipe.tags.join(', '),
 		});
 
-		categories = await getCategories();
+		const EXCLUDED_CATEGORIES = ['Beef'];
+		const all = await getCategories();
+		categories = all.filter(c => !EXCLUDED_CATEGORIES.includes(c));
 		categoriesJson = JSON.stringify(categories.map(c => ({ value: c, label: c })));
 	});
 

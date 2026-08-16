@@ -8,8 +8,11 @@
 	let categories: string[] = [];
 	let categoriesJson = '[]';
 
+	const EXCLUDED_CATEGORIES = ['Beef'];
+
 	onMount(async () => {
-		categories = await getCategories();
+		const all = await getCategories();
+		categories = all.filter(c => !EXCLUDED_CATEGORIES.includes(c));
 		categoriesJson = JSON.stringify(categories.map(c => ({ value: c, label: c })));
 	});
 
