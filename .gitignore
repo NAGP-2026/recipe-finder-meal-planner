@@ -32,3 +32,4 @@ Thumbs.db
 *.sln
 *.sw?
 recipe-components/.stencil/  
+CONTEXT.md  
