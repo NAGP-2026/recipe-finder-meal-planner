@@ -7,12 +7,11 @@
 	let mobileMenuOpen = false;
 	let scrolled = false;
 
-	onMount(async () => {
-		// Use dist/components (dist-custom-elements output) instead of the lazy-loading loader.
-		// This is bundled eagerly by Vite so it works correctly in production builds on Vercel.
-		// Each component has externalRuntime: false and auto-define-custom-elements behavior.
-		await import('@piyushchandel/recipe-components/dist/components/index.js');
-
+	onMount(() => {
+		// Stencil components are loaded via CDN script in app.html:
+		// https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.0/dist/recipe-components/recipe-components.esm.js
+		// The CDN serves all lazy-loaded chunk files (p-*.entry.js) from the same base URL,
+		// which makes Stencil's lazy loading work correctly in both dev and production.
 		const handleScroll = () => { scrolled = window.scrollY > 20; };
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);
