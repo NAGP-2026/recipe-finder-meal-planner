@@ -70,9 +70,6 @@
 				<div class="hero-info">
 					<div class="tag-row">
 						<span class="user-badge">👨‍🍳 My Recipe</span>
-						{#if recipe.category}
-							<recipe-badge variant="primary" size="medium">{recipe.category}</recipe-badge>
-						{/if}
 						{#if recipe.area}
 							<recipe-badge variant="secondary" size="medium">🌍 {recipe.area}</recipe-badge>
 						{/if}

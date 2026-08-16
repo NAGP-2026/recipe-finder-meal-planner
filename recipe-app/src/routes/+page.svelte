@@ -199,7 +199,6 @@
 			{/each}
 		</div>
 
-		<!-- Stats Bar (Stripe-style) -->
 		<div class="hero-stats">
 			<div class="hero-stat">
 				<span class="hero-stat-num">10K+</span>
@@ -280,7 +279,6 @@
 							recipeId={recipe.id}
 							recipeTitle={recipe.title}
 							image={recipe.image}
-							category={recipe.category}
 							area={recipe.area}
 							isFavorite={$favoriteIds.has(recipe.id)}
 							isUserCreated={recipe.isUserCreated}

@@ -75,7 +75,6 @@
 						recipeId={recipe.id}
 						recipeTitle={recipe.title}
 						image={recipe.image}
-						category={recipe.category}
 						area={recipe.area || ''}
 						isFavorite={$favoriteIds.has(recipe.id)}
 						isUserCreated={true}

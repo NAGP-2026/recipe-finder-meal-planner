@@ -74,7 +74,6 @@
 						recipeId={recipe.id}
 						recipeTitle={recipe.title}
 						image={recipe.image}
-						category={recipe.category}
 						area={recipe.area}
 						isFavorite={true}
 						isUserCreated={recipe.isUserCreated}

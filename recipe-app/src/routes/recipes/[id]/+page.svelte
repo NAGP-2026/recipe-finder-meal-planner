@@ -98,9 +98,6 @@
 
 			<div class="hero-meta">
 				<div class="badge-row">
-					{#if recipe.category}
-						<recipe-badge variant="primary" size="medium">{recipe.category}</recipe-badge>
-					{/if}
 					{#if recipe.area}
 						<recipe-badge variant="secondary" size="medium">🌍 {recipe.area}</recipe-badge>
 					{/if}
