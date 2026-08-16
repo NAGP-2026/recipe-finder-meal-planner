@@ -6,13 +6,26 @@ A full-featured, modern Recipe Finder & Meal Planner platform built with **Svelt
 
 ## 📦 npm Package (StencilJS Component Library)
 
-> **Package:** [`@piyushchandel/recipe-components`](https://www.npmjs.com/package/@piyushchandel/recipe-components)
+> **Package:** [`@piyushchandel/recipe-components`](https://www.npmjs.com/package/@piyushchandel/recipe-components)  
+> **Current version: v1.0.2**
 
 ```bash
+# Install latest (v1.0.2)
 npm install @piyushchandel/recipe-components
+
+# Install a specific version
+npm install @piyushchandel/recipe-components@1.0.2
 ```
 
 🔗 **npm link:** https://www.npmjs.com/package/@piyushchandel/recipe-components
+
+### 📋 Package Version History
+
+| Version | Changes |
+|---------|---------|
+| **v1.0.2** *(current / latest)* | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
+| **v1.0.1** | Search bar — background opacity 0.06→0.18, border 0.12→0.35, placeholder 0.28→0.60, icon opacity 0.5→0.75 |
+| **v1.0.0** | Initial release — 10 components: RecipeCard, SearchBar, FilterPanel, MealPlanCard, FavoriteButton, RecipeBadge, RatingStars, RecipeModal, RecipeForm, LoadingSpinner |
 
 ---
 
@@ -272,7 +285,7 @@ Stencil uses lazy loading — it fetches component JS chunks (`p-abc123.entry.js
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.1/dist/recipe-components/recipe-components.esm.js">
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.2/dist/recipe-components/recipe-components.esm.js">
 </script>
 ```
 
@@ -381,7 +394,7 @@ All write operations use **Svelte stores** persisted to `localStorage`:
 | `mealPlan` | `rf_meal_plan` | Weekly meal plan object |
 | `ratings` | `rf_ratings` | Per-recipe star ratings |
 
-> **Pattern:** Open API (TheMealDB) for read-only discovery. localStorage for all CRUD operations. This is the reviewer-approved approach for this assignment.
+> **Pattern:** Open API (TheMealDB) for read-only discovery. localStorage for all CRUD operations.
 
 ---
 
@@ -433,7 +446,7 @@ npm run check     # Type-check with svelte-check
 ## 🔗 Links
 
 - **🚀 Deployed App:** https://recipe-finder-meal-planner-ten.vercel.app
-- **📦 npm Package (v1.0.1):** https://www.npmjs.com/package/@piyushchandel/recipe-components
+- **📦 npm Package (v1.0.2 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
 - **💻 GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
 - **🍽️ TheMealDB API Docs:** https://www.themealdb.com/api.php
 
