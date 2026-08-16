@@ -1,4 +1,4 @@
-# 🍽️ RecipeHub — Recipe Finder & Meal Planner
+﻿# 🍽️ RecipeHub — Recipe Finder & Meal Planner
 
 A full-featured, modern Recipe Finder & Meal Planner platform built with **Svelte 5**, **SvelteKit**, and a custom **StencilJS** web component library published to npm.
 
@@ -174,8 +174,6 @@ Recipe_Finder_Meal_Planner_Assignment_v2/
 ---
 
 ## ⚡ Performance Optimizations
-
-> These optimizations go beyond the basic assignment requirements and demonstrate real-world frontend engineering practices.
 
 ---
 
