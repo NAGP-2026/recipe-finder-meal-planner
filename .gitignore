@@ -31,3 +31,4 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+recipe-components/.stencil/  
