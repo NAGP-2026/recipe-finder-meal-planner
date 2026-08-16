@@ -8,10 +8,6 @@
 	let scrolled = false;
 
 	onMount(() => {
-		// Stencil components are loaded via CDN script in app.html:
-		// https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.0/dist/recipe-components/recipe-components.esm.js
-		// The CDN serves all lazy-loaded chunk files (p-*.entry.js) from the same base URL,
-		// which makes Stencil's lazy loading work correctly in both dev and production.
 		const handleScroll = () => { scrolled = window.scrollY > 20; };
 		window.addEventListener('scroll', handleScroll, { passive: true });
 		return () => window.removeEventListener('scroll', handleScroll);
@@ -67,7 +63,6 @@
 		<p>
 			🍽️ <strong>RecipeHub</strong> — Powered by
 			<a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a>
-			· Built with Svelte 5 &amp; StencilJS
 		</p>
 	</footer>
 
