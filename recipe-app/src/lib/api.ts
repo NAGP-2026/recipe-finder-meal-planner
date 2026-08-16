@@ -95,18 +95,34 @@ export async function getRandomRecipes(count: number = 12): Promise<Recipe[]> {
 	const cached = getCached<Recipe[]>(key, TTL_SHORT);
 	if (cached) return cached;
 	try {
-		// Batch all random requests in parallel
-		const promises = Array.from({ length: count }, () =>
-			fetchWithTimeout(`${BASE_URL}/random.php`).then(r => r.json())
+		// Instead of N individual /random.php calls (N round trips),
+		// fetch 2 letters in parallel — each returns ~10-30 meals in a SINGLE request.
+		// This reduces 12 HTTP calls to just 2, cutting load time dramatically.
+		// Randomly pick 2 letters for variety on each cache miss.
+		const allLetters = ['a','b','c','d','e','f','g','h','k','l','m','n','p','r','s','t','v','w'];
+		const shuffledLetters = allLetters.sort(() => Math.random() - 0.5);
+		const letters = shuffledLetters.slice(0, 2);
+		const responses = await Promise.all(
+			letters.map(l => fetchWithTimeout(`${BASE_URL}/search.php?f=${l}`).then(r => r.json()))
 		);
-		const results = await Promise.all(promises);
-		const result = results
-			.filter(r => r.meals && r.meals.length > 0)
-			.map(r => parseMealToRecipe(r.meals[0]));
+		let pool: Recipe[] = responses
+			.flatMap(r => (r.meals || []).map(parseMealToRecipe));
+
+		// Shuffle for variety and trim to requested count
+		for (let i = pool.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[pool[i], pool[j]] = [pool[j], pool[i]];
+		}
+		const result = pool.slice(0, count);
 		setCached(key, result);
 		return result;
 	} catch {
-		return [];
+		// Graceful fallback: single /random.php call
+		try {
+			const res = await fetchWithTimeout(`${BASE_URL}/random.php`);
+			const data = await res.json();
+			return (data.meals || []).map(parseMealToRecipe);
+		} catch { return []; }
 	}
 }
 
