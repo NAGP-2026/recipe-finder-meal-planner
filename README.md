@@ -171,6 +171,16 @@ Recipe_Finder_Meal_Planner_Assignment_v2/
 - Rate any recipe 1–5 stars
 - Ratings persisted locally per recipe
 
+### ♿ Accessibility
+- **Skip to main content** link — visible on keyboard focus, bypasses navbar for screen reader / keyboard users
+- **`aria-current="page"`** on the active navigation link
+- **`role="navigation"` + `aria-label="Main navigation"`** on the `<nav>` element
+- **`aria-expanded` + `aria-controls`** on the mobile hamburger menu button
+- **`role="list"` / `role="listitem"`** on nav `<ul>` / `<li>` elements
+- **`aria-live="polite"` + `role="region"` + `aria-label="Notifications"`** on the toast container
+- **`role="contentinfo"`** on `<footer>`
+- **`<noscript>` fallback** — styled message shown when JavaScript is disabled
+
 ---
 
 ## ⚡ Performance Optimizations
@@ -398,6 +408,46 @@ All write operations use **Svelte stores** persisted to `localStorage`:
 
 ---
 
+## 🧪 Testing
+
+Unit tests are written with **[Vitest](https://vitest.dev/)** and run in a **jsdom** environment (simulating the browser DOM / localStorage).
+
+### Running Tests
+
+```bash
+cd recipe-app
+
+npm test              # Run all 37 tests once (CI mode)
+npm run test:watch    # Watch mode — re-runs on every file change
+npm run test:coverage # V8 coverage report (text + json-summary)
+```
+
+### Test Files
+
+| File | Tests | What's covered |
+|---|---|---|
+| `src/lib/stores.test.ts` | **25** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s via fake timers) |
+| `src/lib/api.test.ts` | **12** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback |
+
+**Total: 37 tests — all passing ✅**
+
+### Setup
+
+`src/test-setup.ts` provides a full `localStorage` mock (get / set / remove / clear / length / key) for the jsdom environment, so Svelte store persistence can be tested without a real browser.
+
+```typescript
+// vite.config.ts — Vitest config
+test: {
+  environment: 'jsdom',
+  globals: true,
+  include: ['src/**/*.test.ts'],
+  setupFiles: ['src/test-setup.ts'],
+  coverage: { provider: 'v8', reporter: ['text', 'json-summary'] },
+}
+```
+
+---
+
 ## 📋 Assumptions
 
 1. **No authentication** — all data is stored client-side in `localStorage`.
@@ -435,10 +485,13 @@ npm run generate  # Generate a new component
 ### SvelteKit App (`recipe-app/`)
 
 ```bash
-npm run dev       # Start development server (localhost:5173)
-npm run build     # Build for production
-npm run preview   # Preview production build
-npm run check     # Type-check with svelte-check
+npm run dev           # Start development server (localhost:5173)
+npm run build         # Build for production
+npm run preview       # Preview production build
+npm run check         # Type-check with svelte-check
+npm test              # Run unit tests (37 passing)
+npm run test:watch    # Watch mode — re-runs on file changes
+npm run test:coverage # V8 coverage report
 ```
 
 ---
