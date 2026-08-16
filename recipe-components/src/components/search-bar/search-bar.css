@@ -14,8 +14,9 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  /* Visible border — 2px, high-opacity white */
+  border: 2px solid rgba(255, 255, 255, 0.55);
   border-radius: 100px;
   padding: 6px 6px 6px 20px;
   gap: 8px;
@@ -23,24 +24,24 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.08);
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .search-container:focus-within {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 107, 53, 0.65);
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 107, 53, 0.8);
   box-shadow:
-    0 0 0 4px rgba(255, 107, 53, 0.18),
-    0 8px 40px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 0 0 4px rgba(255, 107, 53, 0.2),
+    0 8px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .search-icon {
   font-size: 18px;
   flex-shrink: 0;
-  opacity: 0.75;
+  opacity: 0.85;
   transition: opacity 0.2s;
 }
 
@@ -63,14 +64,14 @@
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.60);
+  color: rgba(255, 255, 255, 0.65);
   font-weight: 400;
 }
 
 .clear-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.55);
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -104,12 +105,12 @@
   white-space: nowrap;
   flex-shrink: 0;
   letter-spacing: 0.2px;
-  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
 }
 
 .search-btn:hover {
   transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.55);
 }
 
 .search-btn:active {

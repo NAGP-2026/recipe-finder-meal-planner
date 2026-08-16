@@ -1,6 +1,3 @@
-/* ══════════════════════════════════════════════════════════
-   RecipeCard — Airbnb-inspired dark luxury card
-   ══════════════════════════════════════════════════════════ */
 :host {
   display: block;
   height: 100%;
@@ -30,7 +27,7 @@
     0 24px 48px rgba(255, 107, 53, 0.06);
 }
 
-/* ── Image Container ────────────────────────── */
+/* Image Container */
 .card-image-wrap {
   position: relative;
   overflow: hidden;
@@ -50,7 +47,7 @@
   transform: scale(1.08);
 }
 
-/* Dark gradient overlay (always present) */
+/* Dark gradient overlay */
 .card-image-overlay {
   position: absolute;
   inset: 0;
@@ -67,7 +64,7 @@
   opacity: 0.85;
 }
 
-/* ── Top Badges ─────────────────────────────── */
+/* Top Badges */
 .card-top-row {
   position: absolute;
   top: 12px;
@@ -93,22 +90,23 @@
   border-radius: 100px;
   font-size: 11px;
   font-weight: 700;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   letter-spacing: 0.2px;
   line-height: 1;
 }
 
+/* Category badge: dark opaque bg so it's always readable on any image color */
 .cat-badge.category {
-  background: rgba(255, 107, 53, 0.22);
-  color: #FFB899;
-  border: 1px solid rgba(255, 107, 53, 0.3);
+  background: rgba(8, 12, 28, 0.78);
+  color: #FF8A5E;
+  border: 1.5px solid rgba(255, 107, 53, 0.55);
 }
 
 .cat-badge.area {
-  background: rgba(139, 92, 246, 0.2);
+  background: rgba(8, 12, 28, 0.78);
   color: #C4B5FD;
-  border: 1px solid rgba(139, 92, 246, 0.28);
+  border: 1.5px solid rgba(139, 92, 246, 0.5);
 }
 
 .user-badge {
@@ -125,7 +123,7 @@
   backdrop-filter: blur(10px);
 }
 
-/* ── Favorite Button (top-right) ────────────── */
+/* Favorite button (top-right) */
 .fav-overlay-btn {
   width: 36px;
   height: 36px;
@@ -169,7 +167,7 @@
   100% { transform: scale(1.15); }
 }
 
-/* ── Card Content ───────────────────────────── */
+/* Card Content */
 .card-content {
   padding: 16px 18px 14px;
   flex: 1;
@@ -214,7 +212,7 @@
 
 .meta-icon { font-size: 13px; }
 
-/* ── Action Buttons ─────────────────────────── */
+/* Action Buttons */
 .card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -239,7 +237,7 @@
   cursor: pointer;
   transition: all 0.2s;
   border: 1.5px solid transparent;
-  font-family: 'Plus Jakarta Sans', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
   white-space: nowrap;
   letter-spacing: 0.1px;
 }
@@ -293,7 +291,7 @@
 
 .btn-icon { font-size: 13px; }
 
-/* ── No Image Placeholder ─────────────────── */
+/* No Image Placeholder */
 .no-image {
   background: linear-gradient(135deg, #151829 0%, #1C2038 100%);
   display: flex;
