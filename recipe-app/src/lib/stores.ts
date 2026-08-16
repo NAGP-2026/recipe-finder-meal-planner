@@ -97,9 +97,6 @@ export function setRating(recipeId: string, rating: number) {
 	ratings.update(r => ({ ...r, [recipeId]: rating }));
 }
 
-// ─── Pending Meal Plan Selection ─────────────────────────────────────────────
-export const pendingMealSlot = writable<{ day: string; mealType: string } | null>(null);
-
 // ─── Toast Notifications ─────────────────────────────────────────────────────
 export interface Toast {
 	id: string;

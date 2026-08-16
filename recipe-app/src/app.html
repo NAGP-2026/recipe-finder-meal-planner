@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="description" content="RecipeHub — Discover, save & plan amazing recipes from around the world" />
 		<meta name="theme-color" content="#080B14" />
@@ -29,6 +29,13 @@
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
+		<noscript>
+			<div style="position:fixed;inset:0;background:#080B14;color:#B8C0E0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:sans-serif;text-align:center;padding:24px;z-index:9999;">
+				<div style="font-size:52px;">🍽️</div>
+				<h1 style="color:#fff;font-size:22px;margin:0;">RecipeHub requires JavaScript</h1>
+				<p style="max-width:380px;line-height:1.6;margin:0;">Please enable JavaScript in your browser to use RecipeHub — recipe discovery, meal planning, and favorites all depend on it.</p>
+			</div>
+		</noscript>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

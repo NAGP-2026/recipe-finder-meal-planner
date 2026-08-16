@@ -9,7 +9,10 @@
 	let selectedDay = DAYS_OF_WEEK[0];
 	let selectedMealType = MEAL_TYPES[2];
 
-	function handleCardClick(e: CustomEvent<string>) { goto(`/recipes/${e.detail}`); }
+	function handleCardClick(e: CustomEvent<string>) {
+		const recipe = $favorites.find(r => r.id === e.detail);
+		goto(recipe?.isUserCreated ? `/recipes/user/${e.detail}` : `/recipes/${e.detail}`);
+	}
 
 	function handleFavoriteToggle(e: CustomEvent<{ id: string; isFavorite: boolean }>) {
 		const { id, isFavorite } = e.detail;
