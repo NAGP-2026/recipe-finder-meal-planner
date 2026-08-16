@@ -1,30 +1,20 @@
-/* ══════════════════════════════════════════════════
-   RecipeForm — v1.0.3
-   FIXED: CSS class names now match TSX render output
-     .form-body  → .form-grid  (was missing!)
-     .btn-secondary → .btn-cancel (was missing!)
-     .btn-primary   → .btn-submit (was missing!)
-     .required-mark → .required  (was missing!)
-     .form-hint     → .hint      (was missing!)
-   ══════════════════════════════════════════════════ */
 :host {
   display: block;
 }
 
-/* ─── Form Card ─────────────────────────────────── */
+/* Form card */
 .recipe-form {
   background: linear-gradient(160deg, #1c2240 0%, #161b30 100%);
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: 4px solid rgba(255, 107, 53, 0.6);
   overflow: visible;
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
-  /* Left accent stripe */
-  border-left: 4px solid rgba(255, 107, 53, 0.6);
 }
 
-/* ─── Fields grid (was wrongly targeting .form-body) */
+/* Fields container */
 .form-grid {
   padding: 28px 32px;
   display: flex;
@@ -33,14 +23,14 @@
   overflow: visible;
 }
 
-/* ─── Two-column row ────────────────────────────── */
+/* Two-column row */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-/* ─── Field group ───────────────────────────────── */
+/* Individual field group */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -48,8 +38,7 @@
   overflow: visible;
 }
 
-/* ─── Label ─────────────────────────────────────── */
-/* v1.0.3: was #5c6080 — now clearly visible #b0b8da */
+/* Field label */
 .form-label {
   font-size: 11px;
   font-weight: 700;
@@ -59,17 +48,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding-left: 2px; /* safety margin from card edge */
+  padding-left: 2px;
 }
 
-/* Required asterisk (TSX class: .required not .required-mark) */
 .required {
   color: #f43f5e;
   font-size: 14px;
   font-weight: 900;
 }
 
-/* Hint text inside label (TSX class: .hint) */
 .hint {
   font-size: 10px;
   font-weight: 500;
@@ -78,7 +65,7 @@
   letter-spacing: 0;
 }
 
-/* ─── Inputs / Textarea / Select ────────────────── */
+/* Inputs, selects, textareas */
 .form-input,
 .form-select,
 .form-textarea {
@@ -117,7 +104,7 @@
   font-style: italic;
 }
 
-/* Error state on input (triggered by .form-group.has-error) */
+/* Error state */
 .form-group.has-error .form-input,
 .form-group.has-error .form-textarea,
 .form-group.has-error .form-select {
@@ -125,7 +112,6 @@
   box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
 }
 
-/* Error message text */
 .error-msg {
   font-size: 12px;
   color: #f87171;
@@ -136,7 +122,7 @@
   padding-left: 2px;
 }
 
-/* Select dropdown arrow */
+/* Select with custom arrow */
 .form-select {
   appearance: none;
   -webkit-appearance: none;
@@ -152,13 +138,12 @@
   color: #f0f1fa;
 }
 
-/* Textarea */
 .form-textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-/* ─── Form actions footer ────────────────────────── */
+/* Form footer / actions */
 .form-actions {
   display: flex;
   gap: 12px;
@@ -170,8 +155,7 @@
   border-radius: 0 0 16px 16px;
 }
 
-/* ─── Cancel button (TSX class: btn-cancel) ──────── */
-/* v1.0.3: was .btn-secondary — never matched TSX! */
+/* Cancel button */
 .btn-cancel {
   display: inline-flex;
   align-items: center;
@@ -184,7 +168,6 @@
   font-family: inherit;
   letter-spacing: 0.2px;
   transition: all 0.2s;
-  /* Rose/red outlined style — clearly "cancel/discard" */
   background: rgba(244, 63, 94, 0.08);
   color: #f87171;
   border: 1.5px solid rgba(244, 63, 94, 0.35);
@@ -202,8 +185,7 @@
   transform: translateY(0);
 }
 
-/* ─── Submit button (TSX class: btn-submit) ──────── */
-/* v1.0.3: was .btn-primary — never matched TSX! */
+/* Submit button */
 .btn-submit {
   display: inline-flex;
   align-items: center;
@@ -217,7 +199,6 @@
   letter-spacing: 0.2px;
   transition: all 0.2s;
   border: none;
-  /* Orange gradient */
   background: linear-gradient(135deg, #ff6b35, #e85520);
   color: white;
   box-shadow: 0 4px 18px rgba(255, 107, 53, 0.4);
