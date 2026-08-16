@@ -1,23 +1,31 @@
+/* ══════════════════════════════════════════════════
+   RecipeForm — v1.0.2: Redesigned for better contrast
+   & readability on dark backgrounds
+   ══════════════════════════════════════════════════ */
 :host {
   display: block;
 }
 
 .recipe-form {
-  background: #111425;
+  background: linear-gradient(160deg, #1c2240 0%, #161b30 100%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  overflow: hidden;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  overflow: visible;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(139, 92, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .form-header {
-  padding: 24px 28px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 107, 53, 0.08) 0%, rgba(139, 92, 246, 0.06) 100%);
+  border-radius: 20px 20px 0 0;
 }
 
 .form-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: #f0f1fa;
   margin: 0;
@@ -25,10 +33,10 @@
 }
 
 .form-body {
-  padding: 28px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .form-row {
@@ -40,19 +48,20 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .form-group.full-width {
   grid-column: 1 / -1;
 }
 
+/* ✅ v1.0.2: Labels now clearly visible (#5c6080 → #a8b0d0) */
 .form-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #5c6080;
+  color: #a8b0d0;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -60,41 +69,52 @@
 
 .required-mark {
   color: #f43f5e;
+  font-size: 14px;
 }
 
+/* ✅ v1.0.2: Inputs — 0.04 → 0.12 background, 0.08 → 0.22 border */
 .form-input,
 .form-select,
 .form-textarea {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
-  padding: 11px 14px;
+  padding: 12px 16px;
   font-size: 14px;
-  color: #e0e2f0;
+  color: #f0f1fa;
   font-family: inherit;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
-  border-color: rgba(255, 107, 53, 0.45);
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 107, 53, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+  background: rgba(255, 255, 255, 0.12);
 }
 
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.10);
+}
+
+/* ✅ v1.0.2: Placeholder 0.20 → 0.50 */
 .form-input::placeholder,
 .form-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.42);
 }
 
 .form-input.error,
 .form-textarea.error,
 .form-select.error {
-  border-color: rgba(244, 63, 94, 0.45);
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.08);
+  border-color: rgba(244, 63, 94, 0.55);
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.12);
 }
 
 .error-msg {
@@ -110,6 +130,10 @@
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a8b0d0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
 }
 
 .form-select option {
@@ -119,17 +143,17 @@
 
 .form-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 110px;
   line-height: 1.6;
 }
 
 .form-hint {
   font-size: 12px;
-  color: #4a4e6a;
+  color: #6b7299;
   margin-top: 2px;
 }
 
-/* Ingredient list */
+/* ─── Ingredient list ─────────────────────── */
 .ingredient-row {
   display: flex;
   gap: 8px;
@@ -141,30 +165,33 @@
 }
 
 .remove-ingredient-btn {
-  background: rgba(244, 63, 94, 0.08);
-  border: 1px solid rgba(244, 63, 94, 0.18);
+  background: rgba(244, 63, 94, 0.10);
+  border: 1px solid rgba(244, 63, 94, 0.25);
   color: #f87171;
   border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 42px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   flex-shrink: 0;
+  font-size: 16px;
 }
 
 .remove-ingredient-btn:hover {
-  background: rgba(244, 63, 94, 0.18);
+  background: rgba(244, 63, 94, 0.22);
+  border-color: rgba(244, 63, 94, 0.45);
+  transform: scale(1.05);
 }
 
 .add-ingredient-btn {
   background: rgba(255, 107, 53, 0.08);
-  border: 1.5px dashed rgba(255, 107, 53, 0.25);
+  border: 1.5px dashed rgba(255, 107, 53, 0.35);
   color: #ff8a5e;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -174,86 +201,91 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .add-ingredient-btn:hover {
-  background: rgba(255, 107, 53, 0.14);
-  border-color: rgba(255, 107, 53, 0.4);
+  background: rgba(255, 107, 53, 0.16);
+  border-color: rgba(255, 107, 53, 0.55);
+  transform: translateY(-1px);
 }
 
-/* Image preview */
+/* ─── Image preview ───────────────────────── */
 .image-preview {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
-  border-radius: 10px;
-  margin-top: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Form actions */
+/* ─── Form actions ────────────────────────── */
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding: 20px 28px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 22px 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
   background: rgba(255, 255, 255, 0.02);
+  border-radius: 0 0 20px 20px;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 24px;
-  border-radius: 10px;
+  padding: 12px 28px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
   font-family: inherit;
+  letter-spacing: 0.2px;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, #ff6b35, #e85520);
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.35);
+  box-shadow: 0 4px 18px rgba(255, 107, 53, 0.4);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(255, 107, 53, 0.48);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(255, 107, 53, 0.55);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.06);
-  color: #9ea3be;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.08);
+  color: #b0b8d8;
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.14);
   color: #f0f1fa;
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
-/* Section divider */
+/* ─── Section title ───────────────────────── */
 .form-section-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #ff8a5e;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .form-section-title::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 107, 53, 0.15);
+  background: linear-gradient(90deg, rgba(255, 107, 53, 0.25), transparent);
 }
