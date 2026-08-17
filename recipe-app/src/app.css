@@ -500,7 +500,7 @@ body::before {
   .hero-stats { flex-wrap: wrap; border-radius: var(--radius-lg); }
   .hero-stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); width: 50%; }
   .hero-stat:nth-child(3) { border-bottom: none; width: 100%; }
-  .food-float { display: none; }
+  .food-float { font-size: 18px; opacity: 0.7; }
 }
 @media (max-width: 480px) {
   .day-grid { grid-template-columns: repeat(4, 1fr); }
