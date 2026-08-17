@@ -36,7 +36,7 @@
 			recipeTitle: recipe.title,
 			recipeImage: recipe.image,
 		});
-		showToast(`${recipe.title} added to ${selectedDay} ${selectedMealType}! 📅`);
+		showToast(`${recipe.title} added to ${selectedDay} ${selectedMealType}! 🗓️`);
 		showMealPicker = false;
 	}
 </script>
@@ -64,7 +64,7 @@
 							onfavoriteToggle={toggleFavorite}
 						></favorite-button>
 						<button class="action-btn" onclick={() => goto(`/recipes/edit/${recipe?.id}`)}>✏️ Edit</button>
-						<button class="meal-btn" onclick={() => showMealPicker = true}>📅 Add to Meal Plan</button>
+						<button class="meal-btn" onclick={() => showMealPicker = true}>🗓️ Add to Meal Plan</button>
 					</div>
 				</div>
 				<div class="hero-info">
@@ -171,7 +171,7 @@
 				</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" onclick={() => showMealPicker = false}>Cancel</button>
-					<button class="btn btn-primary" onclick={confirmMealPlan}>Add to Plan 📅</button>
+					<button class="btn btn-primary" onclick={confirmMealPlan}>Add to Plan 🗓️</button>
 				</div>
 			</div>
 		</div>

@@ -121,7 +121,7 @@ export class RecipeCard {
                 class="action-btn plan"
                 onClick={(e) => this.handleAddToMealPlan(e)}
               >
-                <span class="btn-icon">📅</span>
+                <span class="btn-icon">🗓️</span>
                 Plan
               </button>
 

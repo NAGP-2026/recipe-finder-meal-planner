@@ -21,7 +21,7 @@
 			recipeTitle: recipe.title,
 			recipeImage: recipe.image,
 		});
-		showToast(`Added to ${selectedDay} ${selectedMealType}! 📅`);
+		showToast(`Added to ${selectedDay} ${selectedMealType}! 🗓️`);
 		onclose();
 	}
 </script>
@@ -30,7 +30,7 @@
 	<div class="modal-backdrop" role="dialog" aria-modal="true" aria-label="Add to meal plan">
 		<div class="meal-picker-modal">
 			<div class="modal-header">
-				<h3>📅 Add to Meal Plan</h3>
+			<h3>🗓️ Add to Meal Plan</h3>
 				<button class="modal-close" onclick={onclose} aria-label="Close">✕</button>
 			</div>
 			<div class="modal-body">
@@ -65,7 +65,7 @@
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-secondary" onclick={onclose}>Cancel</button>
-				<button class="btn btn-primary" onclick={confirm}>Add to Plan 📅</button>
+				<button class="btn btn-primary" onclick={confirm}>Add to Plan 🗓️</button>
 			</div>
 		</div>
 	</div>

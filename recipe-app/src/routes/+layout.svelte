@@ -18,7 +18,7 @@
 	const navLinks = [
 		{ href: '/', label: 'Discover', icon: '🔍' },
 		{ href: '/favorites', label: 'Favorites', icon: '❤️' },
-		{ href: '/meal-planner', label: 'Planner', icon: '📅' },
+		{ href: '/meal-planner', label: 'Planner', icon: '🗓️' },
 		{ href: '/my-recipes', label: 'My Recipes', icon: '👨‍🍳' },
 	];
 </script>

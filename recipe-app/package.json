@@ -27,6 +27,6 @@
 		"vitest": "^2.0.0"
 	},
 	"dependencies": {
-		"@piyushchandel/recipe-components": "1.0.4"
+		"@piyushchandel/recipe-components": "1.0.5"
 	}
 }

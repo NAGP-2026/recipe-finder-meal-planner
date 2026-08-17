@@ -42,7 +42,7 @@
 			recipeTitle: recipe.title,
 			recipeImage: recipe.image,
 		});
-		showToast(`Added to ${selectedDay} ${selectedMealType}! 📅`);
+		showToast(`Added to ${selectedDay} ${selectedMealType}! 🗓️`);
 		showMealPicker = false;
 	}
 
@@ -91,7 +91,7 @@
 						onfavoriteToggle={toggleFavorite}
 					></favorite-button>
 					<button class="glass-btn" onclick={() => showMealPicker = true}>
-						📅 Meal Plan
+					🗓️ Meal Plan
 					</button>
 				</div>
 			</div>
@@ -198,7 +198,7 @@
 	<!-- ── MEAL PICKER MODAL (using recipe-modal Stencil component with slots) ── -->
 	<recipe-modal
 		open={showMealPicker}
-		modalTitle="📅 Add to Meal Plan"
+		modalTitle="🗓️ Add to Meal Plan"
 		size="medium"
 		onmodalClose={() => showMealPicker = false}
 		onmodalConfirm={confirmMealPlan}
@@ -228,7 +228,7 @@
 		<!-- Named slot: custom footer buttons -->
 		<div slot="footer" class="slot-footer">
 			<button class="btn btn-secondary" onclick={() => showMealPicker = false}>Cancel</button>
-			<button class="btn btn-primary" onclick={confirmMealPlan}>Add to Plan 📅</button>
+			<button class="btn btn-primary" onclick={confirmMealPlan}>Add to Plan 🗓️</button>
 		</div>
 	</recipe-modal>
 {/if}

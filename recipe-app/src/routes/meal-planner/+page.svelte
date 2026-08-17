@@ -43,7 +43,7 @@
 		<!-- Compact banner header -->
 		<div class="planner-banner">
 			<div class="banner-left">
-				<div class="banner-icon">📅</div>
+				<div class="banner-icon">🗓️</div>
 				<div>
 					<h1 class="page-title">Weekly Meal Planner</h1>
 					<p class="page-subtitle">Plan every meal for a balanced, perfect week</p>
@@ -87,7 +87,7 @@
 
 		{#if totalMeals === 0}
 			<div class="empty-compact">
-				<div class="empty-emoji">📅</div>
+				<div class="empty-emoji">🗓️</div>
 				<h3>Your meal plan is empty</h3>
 				<p>Browse recipes and click <strong>"Meal Plan"</strong> on any card to start building your perfect week</p>
 				<a href="/" class="btn btn-primary btn-lg">🍽️ Discover Recipes</a>
