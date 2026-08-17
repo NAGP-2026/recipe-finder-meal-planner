@@ -23,7 +23,7 @@ npm install @piyushchandel/recipe-components@1.0.5
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.5** *(current / latest)* | Replace calendar emoji 📅 → 🗓️ in `recipe-card` "Plan" button for consistent styling across all Stencil components and SvelteKit pages |
+| **v1.0.5** *(current / latest)* | Standardized the spiral calendar icon in the `recipe-card` "Plan" button to match the icon style used consistently across all pages |
 | **v1.0.4** | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
 | **v1.0.3** | Recipe form — corrected CSS class names to match TSX output (`.form-grid`, `.btn-cancel`, `.btn-submit`); orange gradient submit button; rose/red cancel button |
 | **v1.0.2** | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
