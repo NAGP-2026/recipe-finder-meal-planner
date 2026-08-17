@@ -7,14 +7,14 @@ A full-featured, modern Recipe Finder & Meal Planner platform built with **Svelt
 ## 📦 npm Package (StencilJS Component Library)
 
 > **Package:** [`@piyushchandel/recipe-components`](https://www.npmjs.com/package/@piyushchandel/recipe-components)  
-> **Current version: v1.0.4**
+> **Current version: v1.0.5**
 
 ```bash
-# Install latest (v1.0.4)
+# Install latest (v1.0.5)
 npm install @piyushchandel/recipe-components
 
 # Install a specific version
-npm install @piyushchandel/recipe-components@1.0.4
+npm install @piyushchandel/recipe-components@1.0.5
 ```
 
 🔗 **npm link:** https://www.npmjs.com/package/@piyushchandel/recipe-components
@@ -23,7 +23,8 @@ npm install @piyushchandel/recipe-components@1.0.4
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.4** *(current / latest)* | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
+| **v1.0.5** *(current / latest)* | Replace calendar emoji 📅 → 🗓️ in `recipe-card` "Plan" button for consistent styling across all Stencil components and SvelteKit pages |
+| **v1.0.4** | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
 | **v1.0.3** | Recipe form — corrected CSS class names to match TSX output (`.form-grid`, `.btn-cancel`, `.btn-submit`); orange gradient submit button; rose/red cancel button |
 | **v1.0.2** | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
 | **v1.0.1** | Search bar — background opacity 0.06→0.18, border 0.12→0.35, placeholder 0.28→0.60, icon opacity 0.5→0.75 |
@@ -295,7 +296,7 @@ Stencil uses lazy loading — it fetches component JS chunks (`p-abc123.entry.js
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.4/dist/recipe-components/recipe-components.esm.js">
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.5/dist/recipe-components/recipe-components.esm.js">
 </script>
 ```
 
@@ -370,7 +371,7 @@ The app uses the following **custom web components** from `@piyushchandel/recipe
     <div><!-- body content in default slot --></div>
     <div slot="footer">
       <button onclick={cancel}>Cancel</button>
-      <button onclick={confirm}>Add to Plan 📅</button>
+      <button onclick={confirm}>Add to Plan 🗓️</button>
     </div>
   </recipe-modal>
   ```
@@ -499,7 +500,7 @@ npm run test:coverage # V8 coverage report
 ## 🔗 Links
 
 - **🚀 Deployed App:** https://recipe-finder-meal-planner-ten.vercel.app
-- **📦 npm Package (v1.0.4 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
+- **📦 npm Package (v1.0.5 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
 - **💻 GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
 - **🍽️ TheMealDB API Docs:** https://www.themealdb.com/api.php
 
