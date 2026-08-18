@@ -329,6 +329,37 @@ CDN also provides **global edge caching** — users worldwide load Stencil from 
 
 ---
 
+## 🔒 Security
+
+### 1. HTTP Security Headers (`vercel.json`)
+
+All responses are served with strict security headers configured in `vercel.json`:
+
+| Header | Value | Protection |
+|--------|-------|------------|
+| `Content-Security-Policy` | Allowlists scripts (`cdn.jsdelivr.net`), styles (`fonts.googleapis.com`), fonts (`fonts.gstatic.com`), images (`https:`), API (`themealdb.com`), frames (YouTube only) | Blocks XSS, data injection, unauthorised resource loads |
+| `X-Frame-Options` | `DENY` | Prevents clickjacking — page cannot be embedded in any `<iframe>` |
+| `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing attacks |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage to cross-origin requests |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=()` | Disables sensitive browser APIs the app does not use |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Enforces HTTPS for 1 year — prevents protocol downgrade attacks |
+| `X-DNS-Prefetch-Control` | `on` | Allows browser-level DNS prefetch (performance) |
+
+### 2. Subresource Integrity (SRI)
+
+The StencilJS component library is loaded from jsDelivr CDN. A SHA-384 integrity hash is pinned directly in `app.html` — if the CDN ever serves a tampered or corrupted file, the browser rejects it outright before execution:
+
+```html
+<script type="module"
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.5/..."
+  integrity="sha384-9hM2BiS0BRJkzlTqZGU0Fv/QS7YGj3LK2VxHDW0Si5ekmw8sVOsnzEWpk+7wPeN3"
+  crossorigin="anonymous"></script>
+```
+
+This protects against **supply-chain attacks** — a class of attack where a third-party CDN or npm package is compromised.
+
+---
+
 ## 🧩 StencilJS Components
 
 The app uses the following **custom web components** from `@piyushchandel/recipe-components`:
