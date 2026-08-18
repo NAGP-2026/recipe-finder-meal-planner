@@ -304,7 +304,84 @@ CDN also provides **global edge caching** — users worldwide load Stencil from 
 
 ---
 
-### 6. 🎯 SvelteKit & Svelte 5 Built-in Optimizations
+### 6. 🗄️ LRU Cache Eviction — Bounded Memory Use
+
+**File:** `recipe-app/src/lib/api.ts`
+
+The in-memory cache is a `Map` — and Maps in JavaScript grow forever if you're not careful. After enough searches and filter clicks, the cache could hold hundreds of stale entries consuming memory for the rest of the session.
+
+The fix is a 100-entry cap with LRU (Least Recently Used) eviction. When the 101st entry arrives, the oldest one — the key that was inserted first — gets dropped. JavaScript Maps preserve insertion order, so finding the oldest entry is just `.keys().next().value` — no sorting, no extra data structure.
+
+```typescript
+const MAX_CACHE = 100; // hard cap — prevents unbounded memory growth
+
+function setCached<T>(key: string, data: T): void {
+  if (memCache.size >= MAX_CACHE) {
+    const oldestKey = memCache.keys().next().value; // O(1) — insertion order
+    if (oldestKey !== undefined) memCache.delete(oldestKey);
+  }
+  memCache.set(key, { data, ts: Date.now() });
+}
+```
+
+Space complexity is now **O(1) bounded** — no matter how long a user browses, the cache stays at most 100 entries.
+
+---
+
+### 7. 🔑 Pre-built Ingredient Key Array — No Repeated String Work
+
+**File:** `recipe-app/src/lib/api.ts` → `parseMealToRecipe()`
+
+TheMealDB returns ingredients as `strIngredient1` through `strIngredient20` — so every time a recipe is parsed, the original code built those key strings inside the loop: `"strIngredient" + i` and `"strMeasure" + i`. That's 40 string allocations per meal, running for every recipe in every API response.
+
+The fix is to build the key pairs once when the module loads, and reuse them for every parse call:
+
+```typescript
+// Built once — reused for every recipe parsed during the session
+const INGREDIENT_KEYS: [string, string][] = Array.from(
+  { length: 20 },
+  (_, i) => [`strIngredient${i + 1}`, `strMeasure${i + 1}`]
+);
+
+function parseMealToRecipe(meal: Record<string, string>): Recipe {
+  const ingredients: Ingredient[] = [];
+  for (const [ingKey, measKey] of INGREDIENT_KEYS) { // no string building
+    const ingredient = meal[ingKey];
+    const measure = meal[measKey];
+    if (ingredient?.trim()) {
+      ingredients.push({ name: ingredient.trim(), measure: measure?.trim() || '' });
+    }
+  }
+  // ...
+}
+```
+
+---
+
+### 8. ❤️ O(1) Favorites Lookup — Set Instead of Array Scan
+
+**File:** `recipe-app/src/lib/stores.ts`
+
+Checking whether a recipe is in the user's favorites sounds simple, but done naively it's an `Array.find()` — that's O(n) per recipe card, called on every render. With 12+ cards on screen, that's 12+ linear scans every time the favorites store updates.
+
+The fix is a Svelte derived store that keeps a `Set` of favorite IDs — a Set's `.has()` is O(1) regardless of how many favorites the user has:
+
+```typescript
+// Derived store — recomputed only when favorites change, not on every render
+export const favoriteIds = derived(
+  favorites,
+  $faves => new Set($faves.map(f => f.id))
+);
+
+// Every recipe card:
+isFavorite={$favoriteIds.has(recipe.id)} // O(1) — instant
+```
+
+The result: no matter how many recipes are on screen or how many favorites a user has, the favorite check is always a single hash lookup.
+
+---
+
+### 🎯 SvelteKit & Svelte 5 Built-in Optimizations
 
 | Feature | Benefit |
 |---|---|
@@ -449,7 +526,7 @@ Unit tests are written with **[Vitest](https://vitest.dev/)** and run in a **jsd
 ```bash
 cd recipe-app
 
-npm test              # Run all 37 tests once (CI mode)
+npm test              # Run all 39 tests once (CI mode)
 npm run test:watch    # Watch mode — re-runs on every file change
 npm run test:coverage # V8 coverage report (text + json-summary)
 ```
@@ -459,9 +536,9 @@ npm run test:coverage # V8 coverage report (text + json-summary)
 | File | Tests | What's covered |
 |---|---|---|
 | `src/lib/stores.test.ts` | **25** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s via fake timers) |
-| `src/lib/api.test.ts` | **12** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback |
+| `src/lib/api.test.ts` | **14** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback; **LRU eviction** — verifies oldest entry is dropped after 100+ unique inserts; **20-slot ingredient parse** — verifies all ingredient/measure pairs 1–20 are read correctly |
 
-**Total: 37 tests — all passing ✅**
+**Total: 39 tests — all passing ✅**
 
 ### Setup
 
@@ -521,7 +598,7 @@ npm run dev           # Start development server (localhost:5173)
 npm run build         # Build for production
 npm run preview       # Preview production build
 npm run check         # Type-check with svelte-check
-npm test              # Run unit tests (37 passing)
+npm test              # Run unit tests (39 passing)
 npm run test:watch    # Watch mode — re-runs on file changes
 npm run test:coverage # V8 coverage report
 ```
