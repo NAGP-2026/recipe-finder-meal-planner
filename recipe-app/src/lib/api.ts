@@ -2,11 +2,14 @@ import type { Recipe, Ingredient } from './types';
 
 const BASE_URL = 'https://www.themealdb.com/api/json/v1/1';
 
-// ─── In-memory cache with TTL ────────────────────────────────────────────────
-// Avoids redundant API requests within the same session (categories, areas, searches)
+// ─── In-memory cache with TTL + LRU eviction ─────────────────────────────────
+// Avoids redundant API requests within the same session (categories, areas, searches).
+// Capped at MAX_CACHE entries — evicts the oldest entry (insertion order) on overflow
+// so the Map never grows unboundedly during long sessions.
 const memCache = new Map<string, { data: unknown; ts: number }>();
-const TTL_SHORT = 3 * 60 * 1000;   // 3 min  — random recipes (refreshes if stale)
-const TTL_LONG  = 30 * 60 * 1000;  // 30 min — stable data like categories & areas
+const TTL_SHORT  = 3 * 60 * 1000;   // 3 min  — random recipes (refreshes if stale)
+const TTL_LONG   = 30 * 60 * 1000;  // 30 min — stable data like categories & areas
+const MAX_CACHE  = 100;              // O(1) space bound — LRU evicts oldest on overflow
 
 function getCached<T>(key: string, ttl: number): T | null {
 	const entry = memCache.get(key);
@@ -14,15 +17,27 @@ function getCached<T>(key: string, ttl: number): T | null {
 	return null;
 }
 function setCached<T>(key: string, data: T): void {
+	// LRU eviction: Map preserves insertion order, so .keys().next() is the oldest entry
+	if (memCache.size >= MAX_CACHE) {
+		const oldestKey = memCache.keys().next().value;
+		if (oldestKey !== undefined) memCache.delete(oldestKey);
+	}
 	memCache.set(key, { data, ts: Date.now() });
 }
 
 // ─── Parser ──────────────────────────────────────────────────────────────────
+// Pre-built once at module load — eliminates repeated string concatenation on every
+// parseMealToRecipe call (O(1) access vs O(20) string builds per meal object).
+const INGREDIENT_KEYS: [string, string][] = Array.from(
+	{ length: 20 },
+	(_, i) => [`strIngredient${i + 1}`, `strMeasure${i + 1}`]
+);
+
 function parseMealToRecipe(meal: Record<string, string>): Recipe {
 	const ingredients: Ingredient[] = [];
-	for (let i = 1; i <= 20; i++) {
-		const ingredient = meal[`strIngredient${i}`];
-		const measure = meal[`strMeasure${i}`];
+	for (const [ingKey, measKey] of INGREDIENT_KEYS) {
+		const ingredient = meal[ingKey];
+		const measure = meal[measKey];
 		if (ingredient && ingredient.trim()) {
 			ingredients.push({ name: ingredient.trim(), measure: measure?.trim() || '' });
 		}

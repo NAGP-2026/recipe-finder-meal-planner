@@ -107,3 +107,53 @@ describe('getRecipesByCategory', () => {
 		expect(await getRecipesByCategory('err_cat')).toEqual([]);
 	});
 });
+
+// ── LRU cache eviction (MAX_CACHE = 100) ────────────────────────────────────
+// Verifies the space-complexity fix: memCache is capped at 100 entries.
+// Oldest entry (insertion order) must be evicted when the 101st entry is added.
+describe('LRU cache eviction', () => {
+	it('evicts the oldest cache entry after 100+ unique entries are stored', async () => {
+		// Use a highly unique prefix so these keys never collide with other test entries
+		const FIRST_KEY = 'lru_evict_anchor_00000';
+
+		// 1. Store the "anchor" entry first — it will become the oldest
+		vi.stubGlobal('fetch', makeFetch({ meals: [] }));
+		await getRecipesByCategory(FIRST_KEY);
+
+		// 2. Flood with 110 more unique entries to guarantee overflow past MAX_CACHE (100)
+		for (let i = 1; i <= 110; i++) {
+			vi.stubGlobal('fetch', makeFetch({ meals: [] }));
+			await getRecipesByCategory(`lru_evict_flood_${i}`);
+		}
+
+		// 3. FIRST_KEY should now be evicted — re-requesting it must call the network
+		const networkSpy = makeFetch({ meals: [] });
+		vi.stubGlobal('fetch', networkSpy);
+		await getRecipesByCategory(FIRST_KEY);
+		expect(networkSpy).toHaveBeenCalledTimes(1); // cache miss → network call
+	});
+});
+
+// ── Pre-built INGREDIENT_KEYS — all 20 slots parsed correctly ────────────────
+// Verifies the O(1) key-array optimisation: parseMealToRecipe correctly picks up
+// all 20 ingredient/measure pairs without missing or duplicating any slot.
+describe('INGREDIENT_KEYS pre-build correctness', () => {
+	it('parses all 20 ingredient slots via the pre-built key array', async () => {
+		// Build a meal with all 20 ingredient slots filled
+		const fullMeal: Record<string, string> = {
+			idMeal: 'full20', strMeal: 'Full Recipe', strMealThumb: '',
+			strCategory: 'Test', strArea: 'Test', strInstructions: 'Cook it.',
+			strTags: '', strYoutube: '', strSource: '',
+		};
+		for (let i = 1; i <= 20; i++) {
+			fullMeal[`strIngredient${i}`] = `Ingredient ${i}`;
+			fullMeal[`strMeasure${i}`] = `${i} tbsp`;
+		}
+
+		vi.stubGlobal('fetch', makeFetch({ meals: [fullMeal] }));
+		const r = await searchRecipes('full20_ingredient_test_unique');
+		expect(r[0].ingredients).toHaveLength(20);
+		expect(r[0].ingredients[0]).toEqual({ name: 'Ingredient 1', measure: '1 tbsp' });
+		expect(r[0].ingredients[19]).toEqual({ name: 'Ingredient 20', measure: '20 tbsp' });
+	});
+});
