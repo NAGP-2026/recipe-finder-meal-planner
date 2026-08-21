@@ -5,7 +5,7 @@ import {
 	userRecipes, addUserRecipe, updateUserRecipe, deleteUserRecipe,
 	mealPlan, addToMealPlan, removeFromMealPlan, clearMealPlan,
 	ratings, setRating,
-	toasts, showToast,
+	toasts, showToast, dismissToast,
 } from './stores';
 import type { Recipe } from './types';
 
@@ -218,5 +218,49 @@ describe('Toast notifications', () => {
 		expect(get(toasts)).toHaveLength(1);
 		vi.advanceTimersByTime(3001);
 		expect(get(toasts)).toHaveLength(0);
+	});
+
+	it('dismissToast — removes toast immediately without waiting 3 s', () => {
+		showToast('Dismiss me');
+		const id = get(toasts)[0].id;
+		dismissToast(id);
+		expect(get(toasts)).toHaveLength(0);
+		// Advancing time must not re-add or error — timer was cleared
+		vi.advanceTimersByTime(3001);
+		expect(get(toasts)).toHaveLength(0);
+	});
+});
+
+// ── XSS Sanitization (DOMPurify) ─────────────────────────────────────────────
+// Verifies that addUserRecipe / updateUserRecipe strip all HTML/JS before
+// the recipe object is written to localStorage.
+describe('XSS sanitization on user recipes', () => {
+	beforeEach(() => {
+		userRecipes.set([]);
+	});
+
+	it('addUserRecipe — strips <script> tags from title', () => {
+		addUserRecipe({ ...mockRecipe('xss1'), title: '<script>alert(1)</script>Pasta' });
+		const saved = get(userRecipes)[0].title;
+		expect(saved).not.toContain('<script>');
+		expect(saved).toBe('Pasta');
+	});
+
+	it('addUserRecipe — strips inline event handlers from instructions', () => {
+		addUserRecipe({
+			...mockRecipe('xss2'),
+			instructions: '<img src=x onerror=alert(1)> Mix well.',
+		});
+		const saved = get(userRecipes)[0].instructions;
+		expect(saved).not.toContain('<img');
+		expect(saved).toContain('Mix well.');
+	});
+
+	it('updateUserRecipe — sanitizes title on edit', () => {
+		addUserRecipe(mockRecipe('xss3'));
+		updateUserRecipe({ ...mockRecipe('xss3'), title: '<b>Bold</b> Chicken' });
+		const saved = get(userRecipes)[0].title;
+		expect(saved).not.toContain('<b>');
+		expect(saved).toBe('Bold Chicken');
 	});
 });

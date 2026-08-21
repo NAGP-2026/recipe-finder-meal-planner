@@ -1,6 +1,28 @@
 import { writable, derived, get } from 'svelte/store';
 import type { Recipe, MealPlan, MealSlot } from './types';
 
+// ─── XSS Sanitizer ─────────────────────────────────────────────────────────
+// Recipe fields (title, instructions, ingredient names) are plain text — no
+// HTML markup is ever intentional. This function ensures that malicious HTML
+// injected by a user can never reach localStorage or the DOM.
+//
+// Two-pass approach:
+//  1. Nuke script / style blocks completely (tag + all inner content)
+//  2. Strip any remaining HTML tags — keeps visible text between tags
+//
+// Result: '<script>alert(1)</script>Pasta'  →  'Pasta'
+//         '<img src=x onerror=alert(1)> Mix well.'  →  'Mix well.'
+//         '<b>Bold</b> Chicken'  →  'Bold Chicken'
+function sanitize(raw: string): string {
+	// Pass 1 — remove executable blocks and their content
+	let out = raw
+		.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+		.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+	// Pass 2 — strip remaining tags, keep inner text
+	out = out.replace(/<[^>]*>/g, '');
+	return out.trim();
+}
+
 // ─── Helpers ───────────────────────────────────────────────────────────────
 function loadFromStorage<T>(key: string, fallback: T): T {
 	if (typeof localStorage === 'undefined') return fallback;
@@ -48,12 +70,25 @@ export const favoriteIds = derived(favorites, $faves => new Set($faves.map(f => 
 export const userRecipes = writable<Recipe[]>(loadFromStorage<Recipe[]>('rf_user_recipes', []));
 persist('rf_user_recipes', userRecipes);
 
+function sanitizeRecipe(recipe: Recipe): Recipe {
+	return {
+		...recipe,
+		title: sanitize(recipe.title),
+		instructions: sanitize(recipe.instructions),
+		ingredients: recipe.ingredients.map(ing => ({
+			name: sanitize(ing.name),
+			measure: sanitize(ing.measure),
+		})),
+	};
+}
+
 export function addUserRecipe(recipe: Recipe) {
-	userRecipes.update(recipes => [recipe, ...recipes]);
+	userRecipes.update(recipes => [sanitizeRecipe(recipe), ...recipes]);
 }
 
 export function updateUserRecipe(recipe: Recipe) {
-	userRecipes.update(recipes => recipes.map(r => r.id === recipe.id ? recipe : r));
+	const clean = sanitizeRecipe(recipe);
+	userRecipes.update(recipes => recipes.map(r => r.id === clean.id ? clean : r));
 }
 
 export function deleteUserRecipe(id: string) {
@@ -106,10 +141,23 @@ export interface Toast {
 
 export const toasts = writable<Toast[]>([]);
 
+// Tracks pending auto-dismiss timers so we can clearTimeout on explicit dismiss.
+// Without this, dismissing a toast early left a dangling setTimeout that would
+// fire against a stale store reference — a classic memory/timer leak.
+const toastTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
 export function showToast(message: string, type: Toast['type'] = 'success') {
 	const id = Date.now().toString();
 	toasts.update(t => [...t, { id, message, type }]);
-	setTimeout(() => {
-		toasts.update(t => t.filter(toast => toast.id !== id));
-	}, 3000);
+	const timer = setTimeout(() => dismissToast(id), 3000);
+	toastTimers.set(id, timer);
+}
+
+export function dismissToast(id: string) {
+	const timer = toastTimers.get(id);
+	if (timer !== undefined) {
+		clearTimeout(timer);
+		toastTimers.delete(id);
+	}
+	toasts.update(t => t.filter(toast => toast.id !== id));
 }

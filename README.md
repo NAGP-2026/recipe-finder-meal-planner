@@ -422,7 +422,37 @@ All responses are served with strict security headers configured in `vercel.json
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Enforces HTTPS for 1 year — prevents protocol downgrade attacks |
 | `X-DNS-Prefetch-Control` | `on` | Allows browser-level DNS prefetch (performance) |
 
-### 2. Subresource Integrity (SRI)
+### 2. XSS Sanitization — User-Created Content
+
+**File:** `recipe-app/src/lib/stores.ts` → `sanitize()` / `sanitizeRecipe()`
+
+When a user creates or edits a recipe, every text field goes through a two-pass sanitizer before it's written to localStorage:
+
+```typescript
+function sanitize(raw: string): string {
+  // Pass 1 — remove script/style blocks entirely (tag + inner content)
+  let out = raw
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+  // Pass 2 — strip remaining HTML tags, keep the visible text
+  out = out.replace(/<[^>]*>/g, '');
+  return out.trim();
+}
+```
+
+What this means in practice:
+
+| Input | Stored as |
+|-------|-----------|
+| `<script>alert(1)</script>Pasta` | `Pasta` |
+| `<img src=x onerror=alert(1)> Mix well.` | `Mix well.` |
+| `<b>Bold</b> Chicken` | `Bold Chicken` |
+
+Applied to `title`, `instructions`, and every `ingredient.name` / `ingredient.measure` on both create and edit paths — injection never reaches localStorage or the DOM.
+
+---
+
+### 3. Subresource Integrity (SRI)
 
 The StencilJS component library is loaded from jsDelivr CDN. A SHA-384 integrity hash is pinned directly in `app.html` — if the CDN ever serves a tampered or corrupted file, the browser rejects it outright before execution:
 
@@ -526,7 +556,7 @@ Unit tests are written with **[Vitest](https://vitest.dev/)** and run in a **jsd
 ```bash
 cd recipe-app
 
-npm test              # Run all 39 tests once (CI mode)
+npm test              # Run all 43 tests once (CI mode)
 npm run test:watch    # Watch mode — re-runs on every file change
 npm run test:coverage # V8 coverage report (text + json-summary)
 ```
@@ -535,10 +565,10 @@ npm run test:coverage # V8 coverage report (text + json-summary)
 
 | File | Tests | What's covered |
 |---|---|---|
-| `src/lib/stores.test.ts` | **25** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s via fake timers) |
+| `src/lib/stores.test.ts` | **29** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s / **dismissToast** clears timer immediately), **XSS sanitization** (`<script>`, `<img onerror>`, `<b>` stripped from title and instructions on both add and update) |
 | `src/lib/api.test.ts` | **14** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback; **LRU eviction** — verifies oldest entry is dropped after 100+ unique inserts; **20-slot ingredient parse** — verifies all ingredient/measure pairs 1–20 are read correctly |
 
-**Total: 39 tests — all passing ✅**
+**Total: 43 tests — all passing ✅**
 
 ### Setup
 
@@ -598,7 +628,7 @@ npm run dev           # Start development server (localhost:5173)
 npm run build         # Build for production
 npm run preview       # Preview production build
 npm run check         # Type-check with svelte-check
-npm test              # Run unit tests (39 passing)
+npm test              # Run unit tests (43 passing)
 npm run test:watch    # Watch mode — re-runs on file changes
 npm run test:coverage # V8 coverage report
 ```
