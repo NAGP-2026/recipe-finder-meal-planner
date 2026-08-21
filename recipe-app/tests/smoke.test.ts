@@ -85,8 +85,8 @@ test.describe('Favorites page', () => {
 		await page.goto('/favorites');
 		await page.evaluate(() => localStorage.removeItem('rf_favorites'));
 		await page.reload();
-		// Empty state message should be visible
-		await expect(page.locator('.empty-state, .empty-fav, .empty-compact')).toBeVisible({ timeout: 8_000 });
+		// Empty state message should be visible (class used in favorites/+page.svelte)
+		await expect(page.locator('.empty-state-compact')).toBeVisible({ timeout: 8_000 });
 	});
 });
 
@@ -115,7 +115,7 @@ test.describe('Error boundary', () => {
 		await page.goto('/this-route-does-not-exist-xyz');
 		// The error page shows a numeric status code
 		await expect(page.locator('.error-code')).toBeVisible({ timeout: 8_000 });
-		// "Back to Home" button is present
-		await expect(page.locator('a[href="/"]')).toBeVisible();
+		// "Back to Home" button inside .error-actions (not navbar links)
+		await expect(page.locator('.error-actions a[href="/"]')).toBeVisible();
 	});
 });

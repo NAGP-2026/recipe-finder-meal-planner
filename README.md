@@ -485,6 +485,73 @@ Pagination controls appear only when `totalPages > 1` (no clutter for small resu
 
 ---
 
+## 📊 Lighthouse Audit — Desktop (live production)
+
+> Scores measured against **https://recipe-finder-meal-planner-ten.vercel.app** using Lighthouse 12 CLI on the deployed build (commit `53a662d`).
+
+| Category | Score | Badge |
+|---|---|---|
+| ⚡ Performance | **76** | 🟠 |
+| ♿ Accessibility | **92** | 🟢 |
+| ✅ Best Practices | **100** | 🟢 |
+| 🔍 SEO | **100** | 🟢 |
+
+### Core Web Vitals
+
+| Metric | Value | Score |
+|---|---|---|
+| **FCP** (First Contentful Paint) | 2.7 s | 0.62 |
+| **LCP** (Largest Contentful Paint) | 3.6 s | 0.62 |
+| **TBT** (Total Blocking Time) | 330 ms | 0.75 |
+| **CLS** (Cumulative Layout Shift) | 0.029 | ✅ 1.00 |
+| **Speed Index** | 4.9 s | 0.65 |
+| **TTI** (Time to Interactive) | 3.7 s | 0.90 |
+
+> **Why FCP/LCP are ~2.7–3.6 s:**  
+> The app is a **client-only SPA** (`ssr: false`) — the browser must download, parse, and execute JS before the first meaningful paint. An SSR/SSG strategy would push these below 1 s, but SSR is incompatible with Stencil web components that rely on browser APIs (`customElements`, `ResizeObserver`, shadow DOM).  
+> The CLS of **0.029** (perfect score) shows no layout shift — all recipe cards reserve space before images load.
+
+---
+
+## 📦 Bundle Analysis — Production Build
+
+> Output from `npm --prefix recipe-app run build` on the latest commit. All JS assets are **code-split by route** (SvelteKit + Vite).
+
+### Client-side JS (per chunk, gzip)
+
+| Chunk | Raw | Gzip | Contents |
+|---|---|---|---|
+| `C7oPtfE6.js` | 46.4 kB | **17.9 kB** | Svelte 5 runtime core |
+| `fqrVWHac.js` | 26.8 kB | **10.3 kB** | App stores + API client |
+| `nodes/2.*.js` | 8.9 kB | 3.7 kB | Meal Planner page |
+| `nodes/9.*.js` | 8.5 kB | 3.3 kB | Recipe detail page |
+| `nodes/8.*.js` | 7.5 kB | 2.7 kB | User recipe detail |
+| `app.*.js` | 5.4 kB | 2.3 kB | App shell entry |
+| *(remaining route chunks)* | ~9 kB | ~5 kB | All other routes |
+| **Total JS** | **~113 kB** | **~46 kB** | |
+
+### CSS (global + per-route, gzip)
+
+| File | Raw | Gzip | Contents |
+|---|---|---|---|
+| `0.*.css` | 21.95 kB | **5.39 kB** | Global layout / design tokens |
+| `9.*.css` | 6.79 kB | 1.69 kB | Recipe detail styles |
+| `4.*.css` | 6.18 kB | 1.73 kB | Meal Planner styles |
+| *(route chunks)* | ~19 kB | ~5 kB | Remaining routes |
+| **Total CSS** | **~56 kB** | **~15 kB** | |
+
+### Summary
+
+| Asset type | Transfer (gzip) |
+|---|---|
+| JavaScript | **~46 kB** |
+| CSS | **~15 kB** |
+| **Total transfer** | **~61 kB** |
+
+> The Stencil component library (**@piyushchandel/recipe-components**) is loaded from jsDelivr CDN — it does **not** contribute to the Vite bundle size above. It is lazy-loaded by Stencil's loader after page hydration.
+
+---
+
 ## 🔒 Security
 
 ### 1. HTTP Security Headers (`vercel.json`)
@@ -635,7 +702,7 @@ Unit tests are written with **[Vitest](https://vitest.dev/)** and run in a **jsd
 ```bash
 cd recipe-app
 
-npm test              # Run all 43 tests once (CI mode)
+npm test              # Run all 45 unit tests once (CI mode)
 npm run test:watch    # Watch mode — re-runs on every file change
 npm run test:coverage # V8 coverage report (text + json-summary)
 ```
@@ -647,7 +714,7 @@ npm run test:coverage # V8 coverage report (text + json-summary)
 | `src/lib/stores.test.ts` | **29** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s / **dismissToast** clears timer immediately), **XSS sanitization** (`<script>`, `<img onerror>`, `<b>` stripped from title and instructions on both add and update) |
 | `src/lib/api.test.ts` | **16** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback; **LRU eviction** — verifies oldest entry is dropped after 100+ unique inserts; **20-slot ingredient parse** — verifies all ingredient/measure pairs 1–20 are read correctly; **Rate limiter** — allows first 5, blocks 6th |
 
-**Total: 45 tests — all passing ✅**
+**Total: 45 unit tests — all passing ✅**
 
 ### Setup
 
@@ -663,6 +730,36 @@ test: {
   coverage: { provider: 'v8', reporter: ['text', 'json-summary'] },
 }
 ```
+
+### E2E Tests — Playwright
+
+End-to-end smoke tests exercise the full app in a real Chromium browser, covering all critical user paths.
+
+```bash
+# Against local preview (auto-builds first)
+npm --prefix recipe-app run test:e2e
+
+# Against live production
+set BASE_URL=https://recipe-finder-meal-planner-ten.vercel.app
+npm --prefix recipe-app run test:e2e
+```
+
+| # | Test | Suite |
+|---|---|---|
+| 1 | Shows RecipeHub brand and hero title | Home page |
+| 2 | Loads recipe cards from TheMealDB | Home page |
+| 3 | `<search-bar>` web component is present | Home page |
+| 4 | `<filter-panel>` web component is present | Home page |
+| 5 | Favorites link navigates to `/favorites` | Navigation |
+| 6 | Meal Planner link navigates to `/meal-planner` | Navigation |
+| 7 | My Recipes link navigates to `/my-recipes` | Navigation |
+| 8 | Create Recipe CTA navigates to `/recipes/create` | Navigation |
+| 9 | Shows empty state when no favorites saved | Favorites page |
+| 10 | Renders the weekly planner grid | Meal Planner page |
+| 11 | Shows empty state when no user recipes exist | My Recipes page |
+| 12 | `+error.svelte` renders for unknown routes | Error boundary |
+
+**12/12 passing ✅** (Chromium, against live Vercel deployment)
 
 ---
 
@@ -707,9 +804,10 @@ npm run dev           # Start development server (localhost:5173)
 npm run build         # Build for production
 npm run preview       # Preview production build
 npm run check         # Type-check with svelte-check
-npm test              # Run unit tests (43 passing)
+npm test              # Run unit tests (45 passing)
 npm run test:watch    # Watch mode — re-runs on file changes
 npm run test:coverage # V8 coverage report
+npm run test:e2e      # Playwright E2E smoke tests (12 tests, Chromium)
 ```
 
 ---
