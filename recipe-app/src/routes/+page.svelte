@@ -5,7 +5,7 @@
 		favoriteIds, addFavorite, removeFavorite,
 		showToast, userRecipes, deleteUserRecipe
 	} from '$lib/stores';
-	import { searchRecipes, getRandomRecipes, getCategories, getAreas, getRecipesByCategory, getRecipesByArea } from '$lib/api';
+	import { searchRecipes, getRandomRecipes, getCategories, getAreas, getRecipesByCategory, getRecipesByArea, PAGE_SIZE } from '$lib/api';
 	import type { Recipe, FilterState } from '$lib/types';
 	import MealPlanPicker from '$lib/components/MealPlanPicker.svelte';
 
@@ -17,6 +17,19 @@
 	let filterState: FilterState = { category: '', area: '', sortBy: 'default' };
 	let showMealPlanPicker = false;
 	let selectedRecipeForMealPlan: Recipe | null = null;
+
+	// ── Pagination ──────────────────────────────────────────────────────────
+	// Reset to page 1 whenever the active filter/search changes.
+	// We track a key string derived from query + filter state; when it changes
+	// (new search or filter applied) currentPage snaps back to 1 automatically.
+	let currentPage = 1;
+	let _prevKey = '';
+	$: {
+		const key = `${searchQuery}|${filterState.category}|${filterState.area}|${filterState.sortBy}`;
+		if (key !== _prevKey) { _prevKey = key; currentPage = 1; }
+	}
+	$: totalPages = Math.max(1, Math.ceil(filteredRecipes.length / PAGE_SIZE));
+	$: pagedRecipes = filteredRecipes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
 	// Remove Beef from categories
 	const EXCLUDED_CATEGORIES = ['Beef'];
@@ -254,7 +267,7 @@
 			<div class="results-header">
 				<h2 class="section-title">{activeTitle}</h2>
 				{#if !loading}
-					<span class="results-count">{filteredRecipes.length} recipes</span>
+					<span class="results-count">{filteredRecipes.length} recipe{filteredRecipes.length !== 1 ? 's' : ''}{totalPages > 1 ? ` · page ${currentPage}/${totalPages}` : ''}</span>
 				{/if}
 			</div>
 
@@ -271,7 +284,7 @@
 				</div>
 			{:else}
 				<div class="recipes-grid">
-					{#each filteredRecipes as recipe (recipe.id)}
+					{#each pagedRecipes as recipe (recipe.id)}
 						<recipe-card
 							recipeId={recipe.id}
 							recipeTitle={recipe.title}
@@ -289,6 +302,13 @@
 						></recipe-card>
 					{/each}
 				</div>
+				{#if totalPages > 1}
+					<div class="pagination">
+						<button class="page-btn" onclick={() => currentPage--} disabled={currentPage === 1}>← Prev</button>
+						<span class="page-info">Page {currentPage} of {totalPages}</span>
+						<button class="page-btn" onclick={() => currentPage++} disabled={currentPage === totalPages}>Next →</button>
+					</div>
+				{/if}
 			{/if}
 		</div>
 	</div>

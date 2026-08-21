@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { searchRecipes, getRecipeById, getCategories, getAreas, getRecipesByCategory } from './api';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { searchRecipes, getRecipeById, getCategories, getAreas, getRecipesByCategory, checkRateLimit, _resetRateLimit } from './api';
 
 const mockMeal = {
 	idMeal: '52772', strMeal: 'Teriyaki Chicken',
@@ -17,7 +17,10 @@ function makeFetch(data: unknown) {
 	return vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(data) });
 }
 
-afterEach(() => { vi.restoreAllMocks(); });
+// Reset both mocks AND the rate-limiter bucket between every test.
+// Without this, the 5 tokens from searchRecipes tests drain the bucket and
+// subsequent tests that need real API calls get rate-limited (returns null/[]).
+afterEach(() => { vi.restoreAllMocks(); _resetRateLimit(); });
 
 // ── searchRecipes ─────────────────────────────────────────────────────────────
 describe('searchRecipes', () => {
@@ -120,17 +123,38 @@ describe('LRU cache eviction', () => {
 		vi.stubGlobal('fetch', makeFetch({ meals: [] }));
 		await getRecipesByCategory(FIRST_KEY);
 
-		// 2. Flood with 110 more unique entries to guarantee overflow past MAX_CACHE (100)
+		// 2. Flood with 110 more unique entries to guarantee overflow past MAX_CACHE (100).
+		// Each actual API call consumes one rate-limit token (bucket capacity: 5).
+		// Refill the bucket every 5 iterations so the flood always reaches the network.
 		for (let i = 1; i <= 110; i++) {
+			if ((i - 1) % 5 === 0) _resetRateLimit();
 			vi.stubGlobal('fetch', makeFetch({ meals: [] }));
 			await getRecipesByCategory(`lru_evict_flood_${i}`);
 		}
 
-		// 3. FIRST_KEY should now be evicted — re-requesting it must call the network
+		// 3. FIRST_KEY should now be evicted — re-requesting it must call the network.
+		// Ensure a token is available for this final check.
+		_resetRateLimit();
 		const networkSpy = makeFetch({ meals: [] });
 		vi.stubGlobal('fetch', networkSpy);
 		await getRecipesByCategory(FIRST_KEY);
 		expect(networkSpy).toHaveBeenCalledTimes(1); // cache miss → network call
+	});
+});
+
+// ── Rate limiter (token bucket) ───────────────────────────────────────────────
+describe('Rate limiter (token bucket)', () => {
+	beforeEach(() => _resetRateLimit());
+
+	it('allows the first 5 consecutive requests', () => {
+		for (let i = 0; i < 5; i++) {
+			expect(checkRateLimit()).toBe(true);
+		}
+	});
+
+	it('blocks the 6th request when all tokens are exhausted', () => {
+		for (let i = 0; i < 5; i++) checkRateLimit(); // drain the bucket
+		expect(checkRateLimit()).toBe(false);          // 6th call → blocked
 	});
 });
 

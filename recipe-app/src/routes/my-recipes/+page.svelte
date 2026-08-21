@@ -2,10 +2,17 @@
 	import { goto } from '$app/navigation';
 	import { userRecipes, deleteUserRecipe, showToast, favoriteIds } from '$lib/stores';
 	import type { Recipe } from '$lib/types';
+	import { PAGE_SIZE } from '$lib/api';
 	import MealPlanPicker from '$lib/components/MealPlanPicker.svelte';
 
 	let showMealPlanPicker = false;
 	let selectedRecipe: Recipe | null = null;
+
+	// ── Pagination ──────────────────────────────────────────────────────────
+	let currentPage = 1;
+	$: totalPages = Math.max(1, Math.ceil($userRecipes.length / PAGE_SIZE));
+	$: pagedRecipes = $userRecipes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+	$: { $userRecipes; currentPage = 1; }
 
 	function handleCardClick(e: CustomEvent<string>) { goto(`/recipes/user/${e.detail}`); }
 	function handleEditRecipe(e: CustomEvent<string>) { goto(`/recipes/edit/${e.detail}`); }
@@ -61,7 +68,7 @@
 			</div>
 		{:else}
 			<div class="recipes-grid">
-				{#each $userRecipes as recipe (recipe.id)}
+				{#each pagedRecipes as recipe (recipe.id)}
 					<recipe-card
 						recipeId={recipe.id}
 						recipeTitle={recipe.title}
@@ -79,6 +86,13 @@
 					></recipe-card>
 				{/each}
 			</div>
+			{#if totalPages > 1}
+				<div class="pagination">
+					<button class="page-btn" onclick={() => currentPage--} disabled={currentPage === 1}>← Prev</button>
+					<span class="page-info">Page {currentPage} of {totalPages}</span>
+					<button class="page-btn" onclick={() => currentPage++} disabled={currentPage === totalPages}>Next →</button>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </div>

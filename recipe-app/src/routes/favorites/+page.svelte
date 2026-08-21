@@ -2,10 +2,18 @@
 	import { goto } from '$app/navigation';
 	import { favorites, favoriteIds, removeFavorite, showToast } from '$lib/stores';
 	import type { Recipe } from '$lib/types';
+	import { PAGE_SIZE } from '$lib/api';
 	import MealPlanPicker from '$lib/components/MealPlanPicker.svelte';
 
 	let showMealPlanPicker = false;
 	let selectedRecipe: Recipe | null = null;
+
+	// ── Pagination ──────────────────────────────────────────────────────────
+	let currentPage = 1;
+	$: totalPages = Math.max(1, Math.ceil($favorites.length / PAGE_SIZE));
+	$: pagedFavorites = $favorites.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+	// Reset to page 1 whenever the favorites list changes (add/remove)
+	$: { $favorites; currentPage = 1; }
 
 	function handleCardClick(e: CustomEvent<string>) {
 		const recipe = $favorites.find(r => r.id === e.detail);
@@ -63,7 +71,7 @@
 			</div>
 		{:else}
 			<div class="recipes-grid">
-				{#each $favorites as recipe (recipe.id)}
+				{#each pagedFavorites as recipe (recipe.id)}
 					<recipe-card
 						recipeId={recipe.id}
 						recipeTitle={recipe.title}
@@ -79,6 +87,13 @@
 					></recipe-card>
 				{/each}
 			</div>
+			{#if totalPages > 1}
+				<div class="pagination">
+					<button class="page-btn" onclick={() => currentPage--} disabled={currentPage === 1}>← Prev</button>
+					<span class="page-info">Page {currentPage} of {totalPages}</span>
+					<button class="page-btn" onclick={() => currentPage++} disabled={currentPage === totalPages}>Next →</button>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </div>

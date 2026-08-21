@@ -507,3 +507,48 @@ body::before {
   .toast-container { bottom: 16px; right: 16px; left: 16px; }
   .toast { max-width: 100%; }
 }
+
+/* ─── Pagination ─────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+  padding: 8px 0;
+}
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--border-2);
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.page-btn:hover:not(:disabled) {
+  background: rgba(255,107,53,0.1);
+  border-color: rgba(255,107,53,0.4);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255,107,53,0.15);
+}
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+.page-info {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 110px;
+  text-align: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}

@@ -2,6 +2,41 @@ import type { Recipe, Ingredient } from './types';
 
 const BASE_URL = 'https://www.themealdb.com/api/json/v1/1';
 
+// ─── Pagination ───────────────────────────────────────────────────────────────
+// Shared page size used by all recipe grid pages and tests.
+export const PAGE_SIZE = 12;
+
+// ─── Token-Bucket Rate Limiter ────────────────────────────────────────────────
+// Prevents rapid successive API calls from hammering TheMealDB.
+// Capacity : 5 tokens (burst of 5 simultaneous requests is fine)
+// Refill   : 1 token every 200 ms  → max sustained rate of 5 req/sec
+// On exhaustion: returns false → callers return [] immediately without fetching.
+// Cache hits are NOT subject to rate limiting (checked before this gate).
+const _rateBucket = {
+	tokens: 5,
+	max: 5,
+	lastRefill: Date.now(),
+	refillIntervalMs: 200,
+};
+
+export function checkRateLimit(): boolean {
+	const now = Date.now();
+	const tokensToAdd = Math.floor((now - _rateBucket.lastRefill) / _rateBucket.refillIntervalMs);
+	if (tokensToAdd > 0) {
+		_rateBucket.tokens = Math.min(_rateBucket.max, _rateBucket.tokens + tokensToAdd);
+		_rateBucket.lastRefill = now;
+	}
+	if (_rateBucket.tokens <= 0) return false;
+	_rateBucket.tokens -= 1;
+	return true;
+}
+
+/** Reset bucket to full — call from tests only. */
+export function _resetRateLimit(): void {
+	_rateBucket.tokens = _rateBucket.max;
+	_rateBucket.lastRefill = Date.now();
+}
+
 // ─── In-memory cache with TTL + LRU eviction ─────────────────────────────────
 // Avoids redundant API requests within the same session (categories, areas, searches).
 // Capped at MAX_CACHE entries — evicts the oldest entry (insertion order) on overflow
@@ -78,6 +113,7 @@ export async function searchRecipes(query: string): Promise<Recipe[]> {
 	const key = `search:${query.toLowerCase()}`;
 	const cached = getCached<Recipe[]>(key, TTL_SHORT);
 	if (cached) return cached;
+	if (!checkRateLimit()) return []; // rate limited — caller gets graceful empty result
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/search.php?s=${encodeURIComponent(query)}`);
 		const data = await res.json();
@@ -93,6 +129,7 @@ export async function getRecipeById(id: string): Promise<Recipe | null> {
 	const key = `recipe:${id}`;
 	const cached = getCached<Recipe>(key, TTL_LONG);
 	if (cached) return cached;
+	if (!checkRateLimit()) return null;
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/lookup.php?i=${id}`);
 		const data = await res.json();
@@ -109,6 +146,7 @@ export async function getRandomRecipes(count: number = 12): Promise<Recipe[]> {
 	const key = `random:${count}`;
 	const cached = getCached<Recipe[]>(key, TTL_SHORT);
 	if (cached) return cached;
+	if (!checkRateLimit()) return [];
 	try {
 		// Instead of N individual /random.php calls (N round trips),
 		// fetch 2 letters in parallel — each returns ~10-30 meals in a SINGLE request.
@@ -145,6 +183,7 @@ export async function getRecipesByCategory(category: string): Promise<Recipe[]> 
 	const key = `cat:${category}`;
 	const cached = getCached<Recipe[]>(key, TTL_LONG);
 	if (cached) return cached;
+	if (!checkRateLimit()) return [];
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/filter.php?c=${encodeURIComponent(category)}`);
 		const data = await res.json();
@@ -170,6 +209,7 @@ export async function getRecipesByArea(area: string): Promise<Recipe[]> {
 	const key = `area:${area}`;
 	const cached = getCached<Recipe[]>(key, TTL_LONG);
 	if (cached) return cached;
+	if (!checkRateLimit()) return [];
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/filter.php?a=${encodeURIComponent(area)}`);
 		const data = await res.json();
