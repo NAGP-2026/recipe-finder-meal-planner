@@ -381,6 +381,83 @@ The result: no matter how many recipes are on screen or how many favorites a use
 
 ---
 
+---
+
+### 9. 🚦 Token-Bucket Rate Limiter — TheMealDB Protection
+
+**File:** `recipe-app/src/lib/api.ts` → `checkRateLimit()` / `_rateBucket`
+
+Rapid filter/search clicks can fire 10+ API requests per second. The free TheMealDB API has no published rate limit — but hammering it risks temporary blocks for all users.
+
+The fix is a **token-bucket rate limiter** applied to every API call that would hit the network (cache hits bypass it entirely — no token consumed):
+
+```typescript
+// Capacity: 5 tokens — burst of 5 simultaneous requests is fine
+// Refill: 1 token every 200 ms → max sustained rate of 5 req/sec
+const _rateBucket = { tokens: 5, max: 5, lastRefill: Date.now(), refillIntervalMs: 200 };
+
+export function checkRateLimit(): boolean {
+  const now = Date.now();
+  const tokensToAdd = Math.floor((now - _rateBucket.lastRefill) / _rateBucket.refillIntervalMs);
+  if (tokensToAdd > 0) {
+    _rateBucket.tokens = Math.min(_rateBucket.max, _rateBucket.tokens + tokensToAdd);
+    _rateBucket.lastRefill = now;
+  }
+  if (_rateBucket.tokens <= 0) return false; // rate limited
+  _rateBucket.tokens -= 1;
+  return true;
+}
+```
+
+Applied **after** cache check in every public API function — cache hits never consume a token:
+
+```typescript
+const cached = getCached<Recipe[]>(key, TTL_SHORT);
+if (cached) return cached;        // ← no rate limit consumed
+if (!checkRateLimit()) return []; // ← only fires on cache miss
+const res = await fetchWithTimeout(...);
+```
+
+Result: a rapid sequence of 10 filter clicks produces at most 5 real API calls in the first second, with the rest returning `[]` gracefully — no 429 errors, no hanging requests.
+
+---
+
+### 10. 📄 Client-Side Pagination — Bounded DOM Node Count
+
+**Files:** `+page.svelte`, `favorites/+page.svelte`, `my-recipes/+page.svelte`
+
+`/filter.php?c=Chicken` returns 50+ results at once. Rendering all 50 recipe cards simultaneously means 50+ custom elements (`<recipe-card>`) mounted in the DOM — each with its own shadow DOM, event listeners, and CSS. On slower devices this causes layout jank and sluggish scrolling.
+
+The fix: slice every recipe array into pages of 12 (`PAGE_SIZE = 12`) and render only the current page:
+
+```typescript
+// api.ts — shared constant
+export const PAGE_SIZE = 12;
+
+// +page.svelte — reactive pagination
+$: totalPages  = Math.max(1, Math.ceil(filteredRecipes.length / PAGE_SIZE));
+$: pagedRecipes = filteredRecipes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+// Auto-reset to page 1 when search/filter changes
+let _prevKey = '';
+$: {
+  const key = `${searchQuery}|${filterState.category}|${filterState.area}`;
+  if (key !== _prevKey) { _prevKey = key; currentPage = 1; }
+}
+```
+
+**Impact:**
+
+| Scenario | Before | After |
+|---|---|---|
+| Category filter (Chicken) | 50+ cards mounted | **12 cards** — 76% fewer DOM nodes |
+| First contentful paint | Blocked by 50 renders | **Instant** (12 renders) |
+| Initial DOM size | Unbounded (API-dependent) | **Capped at 12** |
+
+Pagination controls appear only when `totalPages > 1` (no clutter for small result sets).
+
+---
+
 ### 🎯 SvelteKit & Svelte 5 Built-in Optimizations
 
 | Feature | Benefit |
@@ -403,6 +480,8 @@ The result: no matter how many recipes are on screen or how many favorites a use
 | Recipe detail revisit | 1 API call | **0 API calls** (30min cache) |
 | Slow/failed API | Hangs indefinitely | **Fails gracefully in ≤8s** |
 | CDN DNS overhead | Resolved at runtime | **Pre-resolved before JS** |
+| Rapid filter clicks (50+ results) | All rendered at once | **12 cards/page, 76% fewer nodes** |
+| TheMealDB hammering | Unlimited requests | **5 req/burst, refills at 5/sec** |
 
 ---
 
@@ -566,9 +645,9 @@ npm run test:coverage # V8 coverage report (text + json-summary)
 | File | Tests | What's covered |
 |---|---|---|
 | `src/lib/stores.test.ts` | **29** | Favorites (add / remove / no-duplicate / `isFavorite` / `favoriteIds` derived store), UserRecipes (add / update / delete + cascade remove from favorites), MealPlan (add / overwrite existing slot / multi-day coexistence / remove / clear all), Ratings (set / overwrite / independent per recipe), Toasts (add / typed / auto-remove after 3 s / **dismissToast** clears timer immediately), **XSS sanitization** (`<script>`, `<img onerror>`, `<b>` stripped from title and instructions on both add and update) |
-| `src/lib/api.test.ts` | **14** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback; **LRU eviction** — verifies oldest entry is dropped after 100+ unique inserts; **20-slot ingredient parse** — verifies all ingredient/measure pairs 1–20 are read correctly |
+| `src/lib/api.test.ts` | **16** | `searchRecipes` — parsed recipe shape, ingredient skipping, tag parsing, null meals, network error; `getRecipeById` — full recipe, not found, error; `getCategories` — array shape; `getAreas` — array shape; `getRecipesByCategory` — category set on results, error fallback; **LRU eviction** — verifies oldest entry is dropped after 100+ unique inserts; **20-slot ingredient parse** — verifies all ingredient/measure pairs 1–20 are read correctly; **Rate limiter** — allows first 5, blocks 6th |
 
-**Total: 43 tests — all passing ✅**
+**Total: 45 tests — all passing ✅**
 
 ### Setup
 
