@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { toasts } from '$lib/stores';
+	import { toasts, dismissToast } from '$lib/stores';
 	import '../app.css';
 
 	let { children } = $props();
@@ -80,9 +80,14 @@
 	<!-- Toast Notifications -->
 	<div class="toast-container" role="region" aria-label="Notifications" aria-live="polite">
 		{#each $toasts as toast (toast.id)}
-			<div class="toast toast-{toast.type}">
-				{#if toast.type === 'success'}✅{:else if toast.type === 'error'}❌{:else}ℹ️{/if}
-				{toast.message}
+			<div class="toast toast-{toast.type}" role="alert">
+				<span class="toast-icon">{#if toast.type === 'success'}✅{:else if toast.type === 'error'}❌{:else}ℹ️{/if}</span>
+				<span class="toast-msg">{toast.message}</span>
+				<button
+					class="toast-close"
+					aria-label="Dismiss notification"
+					onclick={() => dismissToast(toast.id)}
+				>×</button>
 			</div>
 		{/each}
 	</div>

@@ -235,6 +235,7 @@ export async function getCategories(): Promise<string[]> {
 	const key = 'categories';
 	const cached = getCached<string[]>(key, TTL_LONG);
 	if (cached) return cached;
+	if (!checkRateLimit()) return [];
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/categories.php`);
 		const data = await res.json();
@@ -250,6 +251,7 @@ export async function getAreas(): Promise<string[]> {
 	const key = 'areas';
 	const cached = getCached<string[]>(key, TTL_LONG);
 	if (cached) return cached;
+	if (!checkRateLimit()) return [];
 	try {
 		const res = await fetchWithTimeout(`${BASE_URL}/list.php?a=list`);
 		const data = await res.json();
