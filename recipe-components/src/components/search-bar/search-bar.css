@@ -1,6 +1,44 @@
+/* ── CSS Houdini custom property for animated conic-gradient border ── */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 :host {
   display: block;
   width: 100%;
+  /* Gradient border: :host acts as the border via padding + conic-gradient bg */
+  border-radius: 100px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--border-angle),
+    #FF6B35 0%,
+    #8B5CF6 25%,
+    #06D6A0 50%,
+    #F43F5E 75%,
+    #FF6B35 100%
+  );
+  animation: spinBorder 4s linear infinite;
+  box-shadow:
+    0 0 24px rgba(139, 92, 246, 0.25),
+    0 0 48px rgba(255, 107, 53, 0.12),
+    0 8px 40px rgba(0, 0, 0, 0.55);
+  transition: box-shadow 0.4s;
+}
+
+:host(:focus-within) {
+  /* Spin faster + intensify glow when user clicks inside */
+  animation: spinBorder 1.8s linear infinite;
+  box-shadow:
+    0 0 40px rgba(139, 92, 246, 0.55),
+    0 0 80px rgba(255, 107, 53, 0.3),
+    0 0 120px rgba(6, 214, 160, 0.15),
+    0 8px 40px rgba(0, 0, 0, 0.65);
+}
+
+@keyframes spinBorder {
+  to { --border-angle: 360deg; }
 }
 
 .search-wrapper {
@@ -14,28 +52,52 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  /* Visible border — 2px, high-opacity white */
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  border-radius: 100px;
+  /* Very dark bg so the gradient border "pops" */
+  background: rgba(7, 10, 20, 0.97);
+  border: none;                  /* border handled by :host */
+  border-radius: 98px;           /* 100px − 2px padding = 98px */
   padding: 6px 6px 6px 20px;
   gap: 8px;
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: background 0.25s;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 8px 40px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Holographic scan line that sweeps across ── */
+.search-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(139, 92, 246, 0.07),
+    rgba(255, 255, 255, 0.05),
+    rgba(6, 214, 160, 0.07),
+    transparent
+  );
+  animation: scanLine 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+:host(:focus-within) .search-container::before {
+  animation: scanLine 1.6s ease-in-out infinite; /* faster scan on focus */
+}
+
+@keyframes scanLine {
+  0%   { left: -100%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 200%; opacity: 0; }
 }
 
 .search-container:focus-within {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 107, 53, 0.8);
-  box-shadow:
-    0 0 0 4px rgba(255, 107, 53, 0.2),
-    0 8px 40px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background: rgba(9, 13, 26, 0.98);
 }
 
 .search-icon {

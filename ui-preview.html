@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RecipeHub — UI Upgrade Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --bg:        #0B0F1E;
+      --bg-alt:    #0F1528;
+      --surface:   #141929;
+      --surface-2: #1A2035;
+      --primary:   #FF6B35;
+      --primary-dark: #E8501E;
+      --purple:    #8B5CF6;
+      --teal:      #06D6A0;
+      --rose:      #F43F5E;
+      --gold:      #F59E0B;
+      --text:      #FFFFFF;
+      --text-2:    #B8C0E0;
+      --text-muted:#7B85A8;
+      --border:    rgba(255,255,255,0.09);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; padding: 0; overflow-x: hidden;
+    }
+    h1,h2,h3 { font-family: 'Playfair Display', serif; }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ───────────────────────────────────────────
+       SECTION LABEL
+    ─────────────────────────────────────────── */
+    .preview-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3);
+      color: #A78BFA; padding: 6px 16px; border-radius: 100px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 24px;
+    }
+    .preview-label .dot { width: 6px; height: 6px; border-radius: 50%; background: #8B5CF6; box-shadow: 0 0 8px rgba(139,92,246,0.8); animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .section { padding: 60px 40px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; }
+    .section-title { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+    .section-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 40px; line-height: 1.6; }
+
+    /* ───────────────────────────────────────────
+       1. FUTURISTIC SEARCH BAR
+    ─────────────────────────────────────────── */
+    @property --border-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    .search-host {
+      display: block;
+      max-width: 640px;
+      border-radius: 100px;
+      padding: 2px;
+      background: conic-gradient(
+        from var(--border-angle),
+        #FF6B35 0%,
+        #8B5CF6 25%,
+        #06D6A0 50%,
+        #F43F5E 75%,
+        #FF6B35 100%
+      );
+      animation: spinBorder 4s linear infinite;
+      box-shadow:
+        0 0 24px rgba(139,92,246,0.25),
+        0 0 48px rgba(255,107,53,0.12),
+        0 8px 40px rgba(0,0,0,0.55);
+      transition: box-shadow 0.4s, animation-duration 0.2s;
+    }
+
+    .search-host:focus-within {
+      animation: spinBorder 1.8s linear infinite;
+      box-shadow:
+        0 0 40px rgba(139,92,246,0.55),
+        0 0 80px rgba(255,107,53,0.3),
+        0 0 120px rgba(6,214,160,0.15),
+        0 8px 40px rgba(0,0,0,0.65);
+    }
+
+    @keyframes spinBorder {
+      to { --border-angle: 360deg; }
+    }
+
+    .search-inner {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%;
+      background: rgba(7,10,20,0.97);
+      border-radius: 98px;
+      padding: 6px 6px 6px 20px;
+      overflow: hidden; position: relative;
+    }
+
+    /* Scanning shimmer line */
+    .search-inner::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 55%; height: 100%;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(139,92,246,0.07),
+        rgba(255,255,255,0.05),
+        rgba(6,214,160,0.07),
+        transparent
+      );
+      animation: scanLine 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .search-host:focus-within .search-inner::before {
+      animation: scanLine 1.6s ease-in-out infinite;
+    }
+
+    @keyframes scanLine {
+      0%   { left: -100%; opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { left: 200%; opacity: 0; }
+    }
+
+    .search-icon { font-size: 18px; opacity: 0.8; flex-shrink: 0; z-index: 1; }
+    .search-input {
+      flex: 1; background: none; border: none; outline: none;
+      font-size: 16px; font-weight: 500; color: #fff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 10px 0; min-width: 0; z-index: 1;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.5); font-weight: 400; }
+    .search-btn {
+      background: linear-gradient(135deg, #FF6B35, #E8501E);
+      color: white; border: none; border-radius: 100px;
+      padding: 10px 26px; font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: inherit; white-space: nowrap; flex-shrink: 0; z-index: 1;
+      box-shadow: 0 4px 14px rgba(255,107,53,0.4);
+      transition: all 0.22s;
+    }
+    .search-btn:hover { transform: translateY(-1px) scale(1.02); box-shadow: 0 6px 22px rgba(255,107,53,0.6); }
+
+    /* Before/After comparison */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px; }
+    .compare-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 28px; }
+    .compare-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+    .compare-label.before { color: #7B85A8; }
+    .compare-label.after { color: #06D6A0; }
+
+    /* OLD search bar */
+    .search-old {
+      max-width: 100%;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 2px solid rgba(255,255,255,0.55);
+      border-radius: 100px; padding: 6px 6px 6px 20px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.55), 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    /* ───────────────────────────────────────────
+       2. RECIPE CARDS — 3D TILT + NEON GLOW
+    ─────────────────────────────────────────── */
+    .cards-demo { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 960px; }
+
+    .recipe-card {
+      background: var(--surface);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s, border-color 0.35s;
+      transform-style: preserve-3d;
+    }
+    .recipe-card:hover {
+      transform: perspective(800px) rotateX(-3deg) rotateY(3deg) translateY(-8px);
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.65),
+        0 0 40px rgba(255,107,53,0.18),
+        0 0 80px rgba(139,92,246,0.08);
+      border-color: rgba(255,107,53,0.3);
+    }
+    .card-img-wrap { position: relative; height: 200px; overflow: hidden; }
+    .card-img-wrap img { width:100%; height:100%; object-fit:cover; transition: transform 0.5s; }
+    .recipe-card:hover .card-img-wrap img { transform: scale(1.06); }
+    .card-overlay { position:absolute;inset:0; background:linear-gradient(to top,rgba(8,10,20,0.85),transparent 60%); }
+    .card-badge {
+      position:absolute;top:12px;left:12px;
+      background:rgba(8,12,28,0.78); border:1px solid rgba(255,255,255,0.12);
+      color:#fff;padding:4px 10px;border-radius:100px;font-size:12px;font-weight:600;
+    }
+    .card-fav {
+      position:absolute;top:10px;right:12px;
+      background:rgba(0,0,0,0.4);border:none;font-size:18px;
+      width:34px;height:34px;border-radius:50%;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:transform 0.2s,background 0.2s;
+    }
+    .card-fav:hover { transform:scale(1.2); background:rgba(244,63,94,0.2); }
+    .card-body { padding: 16px; }
+    .card-title { font-size: 16px; font-weight: 800; margin-bottom: 12px; font-family:'Playfair Display',serif; }
+    .card-actions { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+    .card-btn {
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      padding:9px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
+      border:1px solid rgba(255,255,255,0.08);transition:all 0.2s;font-family:inherit;
+    }
+    .card-btn.view { background:rgba(255,107,53,0.1);color:var(--primary); }
+    .card-btn.view:hover { background:rgba(255,107,53,0.2); }
+    .card-btn.plan { background:rgba(139,92,246,0.1);color:#A78BFA; }
+    .card-btn.plan:hover { background:rgba(139,92,246,0.2); }
+
+    /* ───────────────────────────────────────────
+       3. CATEGORY PILLS — GRADIENT BORDER
+    ─────────────────────────────────────────── */
+    .pills-demo { display:flex;gap:10px;flex-wrap:wrap;align-items:center; }
+    .pill {
+      display:flex;align-items:center;gap:8px;
+      padding:10px 20px;border-radius:100px;
+      background:var(--surface);border:1.5px solid rgba(255,255,255,0.09);
+      color:var(--text-muted);font-size:13.5px;font-weight:600;
+      cursor:pointer;transition:all 0.2s;font-family:inherit;
+    }
+    .pill:hover {
+      border-color:rgba(255,107,53,0.45);color:var(--primary);
+      background:rgba(255,107,53,0.07);transform:translateY(-2px);
+    }
+    /* NEW active pill — gradient border */
+    .pill.active {
+      color: var(--primary);
+      background-image:
+        linear-gradient(var(--surface), var(--surface)),
+        linear-gradient(135deg, #FF6B35, #8B5CF6, #06D6A0);
+      background-origin: border-box;
+      background-clip: padding-box, border-box;
+      border: 1.5px solid transparent;
+      box-shadow:
+        0 0 18px rgba(255,107,53,0.25),
+        0 0 36px rgba(139,92,246,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* ───────────────────────────────────────────
+       4. NAVBAR WITH LIVE DOT
+    ─────────────────────────────────────────── */
+    .navbar-demo {
+      background: rgba(11,15,30,0.95);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 70px; border-radius: 16px; margin-bottom: 0;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+    }
+    .brand {
+      display:flex;align-items:center;gap:10px;
+      font-weight:800;font-size:18px;font-family:inherit;
+    }
+    .brand-text {
+      background: linear-gradient(90deg,#FF6B35,#FBBF24 40%,#F43F5E 70%,#FF6B35);
+      background-size:250% auto;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      animation:shimmer 5s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:250%} }
+    .live-dot {
+      width:7px;height:7px;border-radius:50%;
+      background:#06D6A0;
+      box-shadow:0 0 10px rgba(6,214,160,0.9);
+      animation:pulseDot 2.5s ease-in-out infinite;
+    }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.65)} }
+    .nav-links-demo { display:flex;align-items:center;gap:4px; }
+    .nav-link-demo {
+      padding:8px 16px;border-radius:10px;font-size:14px;font-weight:600;
+      color:var(--text-muted);cursor:pointer;transition:all 0.18s;
+      border:none;background:none;font-family:inherit;
+    }
+    .nav-link-demo:hover { background:rgba(255,255,255,0.06);color:#fff; }
+    .nav-link-demo.active { background:rgba(255,107,53,0.13);color:var(--primary); }
+    .nav-cta-demo {
+      background:linear-gradient(135deg,#FF6B35,#E8501E);
+      color:white;padding:9px 22px;border-radius:100px;
+      font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:inherit;
+      box-shadow:0 4px 16px rgba(255,107,53,0.35);
+      animation:ctaPulse 4s ease-in-out infinite;
+    }
+    @keyframes ctaPulse {
+      0%,100%{box-shadow:0 4px 16px rgba(255,107,53,0.35)}
+      50%{box-shadow:0 4px 24px rgba(255,107,53,0.55),0 0 0 4px rgba(255,107,53,0.1)}
+    }
+
+    /* ───────────────────────────────────────────
+       5. HERO STATS — NEON GLOW
+    ─────────────────────────────────────────── */
+    .stats-demo {
+      display:flex;align-items:center;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.07);
+      border-radius:100px;padding:4px;
+      backdrop-filter:blur(10px);
+      width:fit-content;
+    }
+    .stat-item {
+      display:flex;flex-direction:column;align-items:center;
+      padding:10px 28px;gap:2px;
+      border-right:1px solid rgba(255,255,255,0.08);
+    }
+    .stat-item:last-child { border-right:none; }
+    .stat-num {
+      font-size:22px;font-weight:900;
+      background:linear-gradient(135deg,#FF6B35,#FBBF24);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      font-family:'Playfair Display',serif;
+      filter:drop-shadow(0 0 8px rgba(255,107,53,0.6)); /* NEW GLOW */
+    }
+    .stat-lbl { font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.7px; }
+
+    /* ───────────────────────────────────────────
+       SCROLL PROGRESS BAR
+    ─────────────────────────────────────────── */
+    .scroll-bar {
+      position:fixed;top:0;left:0;right:0;height:3px;z-index:9999;
+      background:linear-gradient(90deg,#FF6B35,#8B5CF6,#06D6A0);
+      animation:progressPulse 2s ease-in-out infinite alternate;
+      transform-origin:left;
+      box-shadow:0 0 10px rgba(255,107,53,0.6);
+    }
+    @keyframes progressPulse {
+      from{width:35%} to{width:75%}
+    }
+
+    /* ───────────────────────────────────────────
+       LAYOUT + LABELS
+    ─────────────────────────────────────────── */
+    .tag-new {
+      display:inline-block;padding:2px 8px;border-radius:6px;
+      background:rgba(6,214,160,0.15);color:#06D6A0;
+      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+      vertical-align:middle;margin-left:6px;border:1px solid rgba(6,214,160,0.3);
+    }
+    .tag-existing {
+      display:inline-block;padding:2px 8px;border-radius:6px;
+      background:rgba(255,255,255,0.06);color:var(--text-muted);
+      font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+      vertical-align:middle;margin-left:6px;border:1px solid rgba(255,255,255,0.1);
+    }
+
+    @media(max-width:768px){
+      .compare-grid{grid-template-columns:1fr;}
+      .cards-demo{grid-template-columns:1fr 1fr;}
+      .section{padding:40px 20px;}
+    }
+    @media(max-width:480px){
+      .cards-demo{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- Scroll progress bar simulation -->
+<div class="scroll-bar"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 0 — NAVBAR WITH LIVE DOT
+════════════════════════════════════════════════════════════════ -->
+<div class="section" style="padding-bottom:40px;">
+  <div class="preview-label"><span class="dot"></span>Change 1 — Navbar</div>
+  <div class="section-title">Live Status Dot on Brand <span class="tag-new">New</span></div>
+  <p class="section-sub">A pulsing teal dot next to RecipeHub makes the app feel "live" and active. Also shown: the animated shimmer gradient on the brand name (already exists) + the pulsing orange CTA (already exists).</p>
+
+  <div class="navbar-demo">
+    <div class="brand">
+      <span style="font-size:22px">🍽️</span>
+      <span class="brand-text">RecipeHub</span>
+      <span class="live-dot"></span>
+    </div>
+    <div class="nav-links-demo">
+      <button class="nav-link-demo active">🔍 Discover</button>
+      <button class="nav-link-demo">❤️ Favorites</button>
+      <button class="nav-link-demo">🗓️ Planner</button>
+      <button class="nav-link-demo">👨‍🍳 My Recipes</button>
+    </div>
+    <button class="nav-cta-demo">+ New Recipe</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 1 — SEARCH BAR BEFORE / AFTER
+════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="preview-label"><span class="dot"></span>Change 2 — Search Bar</div>
+  <div class="section-title">Futuristic Rotating Gradient Border <span class="tag-new">New</span></div>
+  <p class="section-sub">
+    The static white ring is replaced with an animated <strong>conic-gradient</strong> that spins through orange → purple → teal → rose.
+    On focus, spin speed doubles and the neon glow intensifies.
+    A <strong>holographic scan line</strong> sweeps across the bar continuously.
+    <br><br>Click inside the "After" search bar below to see the focus effect ↓
+  </p>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="compare-label before">❌ Before — Static white border</div>
+      <div class="search-old">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" style="flex:1;background:none;border:none;outline:none;font-size:16px;font-weight:500;color:#fff;font-family:inherit;padding:10px 0;" placeholder="Search pizza, ramen, desserts..." />
+        <button class="search-btn" style="padding:10px 26px;">Search</button>
+      </div>
+    </div>
+
+    <div class="compare-card">
+      <div class="compare-label after">✅ After — Animated gradient border + scan line</div>
+      <div class="search-host">
+        <div class="search-inner">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" placeholder="Search pizza, ramen, desserts..." />
+          <button class="search-btn">Search</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 2 — CATEGORY PILLS
+════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="preview-label"><span class="dot"></span>Change 3 — Category Pills</div>
+  <div class="section-title">Gradient Border Active State <span class="tag-new">New</span></div>
+  <p class="section-sub">The active category pill gets a multi-colour gradient border (same palette as the search bar) with a soft neon glow — ties the visual language together.</p>
+
+  <div class="pills-demo">
+    <button class="pill active">✨ All Recipes</button>
+    <button class="pill">🍗 Chicken</button>
+    <button class="pill">🍰 Dessert</button>
+    <button class="pill">🍝 Pasta</button>
+    <button class="pill">🦐 Seafood</button>
+    <button class="pill">🌱 Vegan</button>
+    <button class="pill">🥓 Pork</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 3 — RECIPE CARDS 3D TILT
+════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="preview-label"><span class="dot"></span>Change 4 — Recipe Cards</div>
+  <div class="section-title">3D Perspective Tilt + Neon Glow on Hover <span class="tag-new">New</span></div>
+  <p class="section-sub">Hovering a recipe card gives a subtle 3D perspective tilt + orange/purple glow. Image zooms in slightly. Hover each card below ↓</p>
+
+  <div class="cards-demo">
+    <div class="recipe-card">
+      <div class="card-img-wrap">
+        <img src="https://www.themealdb.com/images/media/meals/1548772327.jpg" alt="Teriyaki" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'" />
+        <div class="card-overlay"></div>
+        <span class="card-badge">🍗 Chicken</span>
+        <button class="card-fav">🤍</button>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Teriyaki Chicken</h3>
+        <div class="card-actions">
+          <button class="card-btn view">👁️ View</button>
+          <button class="card-btn plan">🗓️ Plan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="card-img-wrap">
+        <img src="https://www.themealdb.com/images/media/meals/ustsqw1468250014.jpg" alt="Pasta" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'" />
+        <div class="card-overlay"></div>
+        <span class="card-badge">🍝 Pasta</span>
+        <button class="card-fav">❤️</button>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Spaghetti Bolognese</h3>
+        <div class="card-actions">
+          <button class="card-btn view">👁️ View</button>
+          <button class="card-btn plan">🗓️ Plan</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="card-img-wrap">
+        <img src="https://www.themealdb.com/images/media/meals/adxcbq1619787919.jpg" alt="Sushi" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'" />
+        <div class="card-overlay"></div>
+        <span class="card-badge">🍣 Seafood</span>
+        <button class="card-fav">🤍</button>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Pork Sushi</h3>
+        <div class="card-actions">
+          <button class="card-btn view">👁️ View</button>
+          <button class="card-btn plan">🗓️ Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 4 — HERO STATS
+════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="preview-label"><span class="dot"></span>Change 5 — Hero Stats</div>
+  <div class="section-title">Neon Glow on Stat Numbers <span class="tag-new">New</span></div>
+  <p class="section-sub">The 10K+, 50+, 100% numbers get a warm orange drop-shadow glow — they feel more "electric" and prominent in the dark hero section.</p>
+
+  <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
+    <div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">❌ Before</p>
+      <div class="stats-demo" style="filter:none;">
+        <div class="stat-item" style="--glow:none">
+          <span style="font-size:22px;font-weight:900;background:linear-gradient(135deg,#FF6B35,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Playfair Display',serif;">10K+</span>
+          <span class="stat-lbl">Recipes</span>
+        </div>
+        <div class="stat-item">
+          <span style="font-size:22px;font-weight:900;background:linear-gradient(135deg,#FF6B35,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Playfair Display',serif;">50+</span>
+          <span class="stat-lbl">Cuisines</span>
+        </div>
+        <div class="stat-item">
+          <span style="font-size:22px;font-weight:900;background:linear-gradient(135deg,#FF6B35,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Playfair Display',serif;">100%</span>
+          <span class="stat-lbl">Free</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p style="font-size:12px;color:#06D6A0;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;">✅ After — with neon glow</p>
+      <div class="stats-demo">
+        <div class="stat-item">
+          <span class="stat-num">10K+</span>
+          <span class="stat-lbl">Recipes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">50+</span>
+          <span class="stat-lbl">Cuisines</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-lbl">Free</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION 5 — SCROLL PROGRESS BAR
+════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="preview-label"><span class="dot"></span>Change 6 — Scroll Progress</div>
+  <div class="section-title">Rainbow Progress Bar at Top <span class="tag-new">New</span></div>
+  <p class="section-sub">
+    The thin gradient bar at the very top of this page (pinned in position) shows how far the user has scrolled. In the real app it would track actual scroll position using a few lines of JavaScript.
+    <br><br>
+    <strong>In app.css, add:</strong>
+    <code style="display:block;margin-top:12px;background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:10px;font-size:13px;border:1px solid rgba(255,255,255,0.1);">
+      .scroll-progress {<br>
+      &nbsp;&nbsp;position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;<br>
+      &nbsp;&nbsp;background: linear-gradient(90deg, #FF6B35, #8B5CF6, #06D6A0);<br>
+      &nbsp;&nbsp;box-shadow: 0 0 10px rgba(255,107,53,0.6);<br>
+      &nbsp;&nbsp;transition: width 0.1s linear;<br>
+      }
+    </code>
+    <br>
+    <strong>In +layout.svelte, add:</strong>
+    <code style="display:block;margin-top:4px;background:rgba(255,255,255,0.05);padding:12px 16px;border-radius:10px;font-size:13px;border:1px solid rgba(255,255,255,0.1);">
+      let scrollPct = $state(0);<br>
+      onMount(() => {<br>
+      &nbsp;&nbsp;window.addEventListener('scroll', () => {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;const h = document.body.scrollHeight - window.innerHeight;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;scrollPct = h > 0 ? (window.scrollY / h) * 100 : 0;<br>
+      &nbsp;&nbsp;}, { passive: true });<br>
+      });<br>
+      // In template:<br>
+      &lt;div class="scroll-progress" style="width:{scrollPct}%"&gt;&lt;/div&gt;
+    </code>
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SUMMARY
+════════════════════════════════════════════════════════════════ -->
+<div class="section" style="border-bottom:none;">
+  <div class="preview-label"><span class="dot"></span>Summary</div>
+  <div class="section-title">All Changes at a Glance</div>
+  <p class="section-sub">Priority order — highest visual impact first.</p>
+
+  <div style="display:grid;gap:12px;max-width:700px;margin-top:8px;">
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <span style="font-size:28px;">🌈</span>
+      <div>
+        <div style="font-weight:700;font-size:15px;">Spinning gradient border on search bar</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px;">Most "wow" factor · animated conic-gradient + scan line · 30 lines CSS in search-bar.css</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(255,107,53,0.15);color:var(--primary);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;">Priority 1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <span style="font-size:28px;">🃏</span>
+      <div>
+        <div style="font-weight:700;font-size:15px;">3D tilt + neon glow on recipe cards</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px;">Premium feel · perspective transform on hover · 8 lines CSS in recipe-card.css</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(139,92,246,0.15);color:#A78BFA;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;">Priority 2</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <span style="font-size:28px;">💊</span>
+      <div>
+        <div style="font-weight:700;font-size:15px;">Gradient border on active category pill</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px;">Ties visual language together · 8 lines CSS in app.css</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(6,214,160,0.12);color:#06D6A0;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;">Priority 3</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <span style="font-size:28px;">🔴</span>
+      <div>
+        <div style="font-weight:700;font-size:15px;">Live pulsing dot next to RecipeHub brand</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px;">Feels "active" · 6 lines CSS in app.css</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(245,158,11,0.12);color:#F59E0B;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;">Priority 4</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <span style="font-size:28px;">📊</span>
+      <div>
+        <div style="font-weight:700;font-size:15px;">Scroll progress bar + neon stat glow</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px;">Polished details · ~15 lines combined</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(244,63,94,0.12);color:#F43F5E;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;">Priority 5</span>
+    </div>
+  </div>
+
+  <p style="margin-top:32px;color:var(--text-muted);font-size:13px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px 20px;line-height:1.7;">
+    💡 <strong style="color:var(--text-2);">Note on @property:</strong> The conic-gradient animation requires <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;">@property --border-angle</code> (CSS Houdini). 
+    It works in Chrome 85+, Edge 85+, Safari 16.4+, Firefox 128+ — covers 95%+ of modern users. 
+    In unsupported browsers the search bar simply shows a static gradient border — still looks great.
+  </p>
+</div>
+
+</body>
+</html>

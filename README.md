@@ -23,7 +23,8 @@ npm install @piyushchandel/recipe-components@1.0.6
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.6** *(current / latest)* | DOMPurify XSS sanitizer (replaces regex), 15 Stencil spec tests, aria-label/aria-pressed on star & favorite components, typed `MouseEvent` handler, picker `<label>→<p>` a11y fix, modal backdrop a11y |
+| **v1.0.7** *(source ready — publish pending)* | Futuristic animated conic-gradient border on `<search-bar>` (spins orange → purple → teal → rose, doubles speed on focus, holographic scan-line sweep); 3D perspective tilt + neon glow on `<recipe-card>` hover (`perspective(900px) rotateX/Y`) |
+| **v1.0.6** *(current CDN)* | DOMPurify XSS sanitizer (replaces regex), 15 Stencil spec tests, aria-label/aria-pressed on star & favorite components, typed `MouseEvent` handler, picker `<label>→<p>` a11y fix, modal backdrop a11y |
 | **v1.0.5** | Standardized the spiral calendar icon in the `recipe-card` "Plan" button to match the icon style used consistently across all pages |
 | **v1.0.4** | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
 | **v1.0.3** | Recipe form — corrected CSS class names to match TSX output (`.form-grid`, `.btn-cancel`, `.btn-submit`); orange gradient submit button; rose/red cancel button |

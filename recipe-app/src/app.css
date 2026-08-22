@@ -111,6 +111,24 @@ body::before {
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   animation: shimmer 5s linear infinite;
 }
+
+/* ── Live status dot — appears after brand name ── */
+.nav-brand::after {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #06D6A0;
+  box-shadow: 0 0 10px rgba(6, 214, 160, 0.9), 0 0 20px rgba(6, 214, 160, 0.4);
+  animation: liveDot 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+@keyframes liveDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.35; transform: scale(0.65); }
+}
 @keyframes shimmer { 0% { background-position: 0% } 100% { background-position: 250% } }
 
 .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; }
@@ -266,11 +284,10 @@ body::before {
   line-height: 1.65; font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .hero-search { width: 100%; max-width: 640px; }
-/* Search bar: visible border applied to host element (works across CDN versions) */
+/* Search bar: gradient border now handled inside the Stencil component via :host */
 .hero-search search-bar {
   display: block;
-  border-radius: 100px;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 8px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 102px; /* slightly larger to avoid clipping the gradient :host */
 }
 
 .hero-quick-tags {
@@ -298,7 +315,18 @@ body::before {
   border-right: 1px solid rgba(255,255,255,0.09);
 }
 .hero-stat:last-child { border-right: none; }
-.hero-stat-num { font-size: 20px; font-weight: 900; color: var(--text); font-family: 'Playfair Display', serif; }
+.hero-stat-num {
+  font-size: 20px;
+  font-weight: 900;
+  font-family: 'Playfair Display', serif;
+  /* Gradient text */
+  background: linear-gradient(135deg, #FF6B35, #FBBF24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  /* Neon glow behind the gradient text */
+  filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.65)) drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+}
 .hero-stat-label { font-size: 11px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
 
 /* Scroll Indicator */
