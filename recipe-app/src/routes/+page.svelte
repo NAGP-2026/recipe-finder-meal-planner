@@ -191,6 +191,8 @@
 		</p>
 
 		<div class="hero-search">
+			<!-- Holographic scan line that sweeps left→right across the bar -->
+			<div class="search-scan" aria-hidden="true"></div>
 			<search-bar
 				placeholder="Search pizza, ramen, desserts..."
 				value={searchQuery}
@@ -225,6 +227,19 @@
 		</div>
 	</div>
 
+	<!-- Bottom-left scroll indicator — 3 downward chevrons, orange→purple→teal cascade -->
+	<a href="#browse-section" class="scroll-bl" aria-label="Scroll down">
+		<span class="chev-d d1"></span>
+		<span class="chev-d d2"></span>
+		<span class="chev-d d3"></span>
+	</a>
+
+	<!-- Bottom-right scroll indicator — mirrored cascade teal→purple→orange -->
+	<a href="#browse-section" class="scroll-br" aria-label="Scroll down">
+		<span class="chev-d d1"></span>
+		<span class="chev-d d2"></span>
+		<span class="chev-d d3"></span>
+	</a>
 </section>
 
 <!-- Section Divider -->

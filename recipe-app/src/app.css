@@ -78,6 +78,15 @@ body::before {
   opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+/* ─── Ambient page-wide gradient — makes hero & browse feel connected ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 40% at 8% 85%,  rgba(139,92,246,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 35% at 92% 65%, rgba(255,107,53,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 50% 100%, rgba(6,214,160,0.04) 0%, transparent 70%);
+}
 
 /* ─── Navbar ─────────────────────────────────── */
 .navbar {
@@ -175,7 +184,7 @@ body::before {
   position: relative; overflow: hidden;
   min-height: 78vh;
   display: flex; align-items: center; justify-content: center;
-  padding: calc(var(--nav-height) + 8px) 24px 36px;
+  padding: calc(var(--nav-height) + 4px) 24px 72px; /* extra bottom room for scroll arrow */
   text-align: center;
 }
 
@@ -249,8 +258,10 @@ body::before {
 
 .hero-content {
   position: relative; z-index: 2;
-  max-width: 860px; margin: 0 auto;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  max-width: min(1400px, 88vw); /* ~80% of screen at typical widths */
+  width: 100%;
+  margin: 0 auto;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   animation: heroReveal 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 @keyframes heroReveal {
@@ -332,6 +343,35 @@ body::before {
   background: #07090F;
 }
 
+/* ── Holographic scan line that sweeps across the search bar ── */
+.search-scan {
+  position: absolute;
+  inset: 2px; /* sit just inside the gradient ring */
+  border-radius: 100px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.search-scan::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.07) 35%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.07) 65%,
+    transparent 100%
+  );
+  animation: searchScanLine 3.2s ease-in-out infinite;
+}
+@keyframes searchScanLine {
+  0%   { left: -40%; }
+  100% { left: 110%; }
+}
+
 .hero-quick-tags {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
 }
@@ -371,20 +411,57 @@ body::before {
 }
 .hero-stat-label { font-size: 11px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
 
-/* Scroll Indicator */
-.scroll-indicator {
-  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
-  z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  animation: fadeInUp 1.5s ease forwards 1.2s; opacity: 0;
+/* ── Bottom-corner scroll indicators (bottom-left & bottom-right) ── */
+.scroll-bl,
+.scroll-br {
+  position: absolute;
+  bottom: 44px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  animation: scrollFadeIn 1.5s ease forwards 1.4s;
+  text-decoration: none;
 }
-.scroll-indicator span { font-size: 11px; color: var(--text-faint); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-.scroll-arrow {
-  width: 28px; height: 28px; border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-size: 12px; animation: bounceDown 2s ease-in-out infinite;
+.scroll-bl { left: 10%; }
+.scroll-br { right: 10%; }
+
+@keyframes scrollFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes bounceDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(5px)} }
-@keyframes fadeInUp { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+/* Downward-pointing CSS chevron — bigger, monochrome orange, brand-aligned */
+.chev-d {
+  display: block;
+  width: 38px;
+  height: 38px;
+  border-right: 4px solid rgba(255, 107, 53, 0.9);
+  border-bottom: 4px solid rgba(255, 107, 53, 0.9);
+  border-radius: 3px;
+  transform: rotate(45deg);
+  margin: -13px 0; /* tighter overlap for larger size */
+  animation: chevDownCascade 1.7s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.6));
+}
+/* Both groups: monochrome orange cascade — bright → medium → faint */
+.scroll-bl .chev-d.d1,
+.scroll-br .chev-d.d1 { animation-delay: 0s;    border-color: rgba(255, 107, 53, 1.00); }
+.scroll-bl .chev-d.d2,
+.scroll-br .chev-d.d2 { animation-delay: 0.22s; border-color: rgba(255, 107, 53, 0.60); }
+.scroll-bl .chev-d.d3,
+.scroll-br .chev-d.d3 { animation-delay: 0.44s; border-color: rgba(255, 107, 53, 0.28); }
+
+@keyframes chevDownCascade {
+  0%       { opacity: 0.05; transform: rotate(45deg) translate(-4px, -4px); }
+  40%, 55% { opacity: 1;    transform: rotate(45deg) translate(0,    0);    }
+  100%     { opacity: 0.05; transform: rotate(45deg) translate(4px,  4px);  }
+}
+
+/* Hide on narrow screens */
+@media (max-width: 860px) { .scroll-bl, .scroll-br { display: none; } }
 
 /* ─── Section Divider ───────────────────────── */
 .section-divider {
