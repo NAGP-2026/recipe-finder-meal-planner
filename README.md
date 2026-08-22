@@ -7,14 +7,14 @@ A full-featured, modern Recipe Finder & Meal Planner platform built with **Svelt
 ## 📦 npm Package (StencilJS Component Library)
 
 > **Package:** [`@piyushchandel/recipe-components`](https://www.npmjs.com/package/@piyushchandel/recipe-components)  
-> **Current version: v1.0.5**
+> **Current version: v1.0.6**
 
 ```bash
-# Install latest (v1.0.5)
+# Install latest (v1.0.6)
 npm install @piyushchandel/recipe-components
 
 # Install a specific version
-npm install @piyushchandel/recipe-components@1.0.5
+npm install @piyushchandel/recipe-components@1.0.6
 ```
 
 🔗 **npm link:** https://www.npmjs.com/package/@piyushchandel/recipe-components
@@ -23,7 +23,8 @@ npm install @piyushchandel/recipe-components@1.0.5
 
 | Version | Changes |
 |---------|---------|
-| **v1.0.5** *(current / latest)* | Standardized the spiral calendar icon in the `recipe-card` "Plan" button to match the icon style used consistently across all pages |
+| **v1.0.6** *(current / latest)* | DOMPurify XSS sanitizer (replaces regex), 15 Stencil spec tests, aria-label/aria-pressed on star & favorite components, typed `MouseEvent` handler, picker `<label>→<p>` a11y fix, modal backdrop a11y |
+| **v1.0.5** | Standardized the spiral calendar icon in the `recipe-card` "Plan" button to match the icon style used consistently across all pages |
 | **v1.0.4** | Search bar — visible 2px white border, stronger focus glow; Category badge — dark opaque background (`rgba(8,12,28,0.78)`) always readable on any image color |
 | **v1.0.3** | Recipe form — corrected CSS class names to match TSX output (`.form-grid`, `.btn-cancel`, `.btn-submit`); orange gradient submit button; rose/red cancel button |
 | **v1.0.2** | Recipe form redesigned — labels `#5c6080` → `#a8b0d0` (visible), input bg 0.04→0.08, border 0.08→0.18, `overflow:hidden` removed (no clipping), select chevron arrow, hover states, gradient form header |
@@ -296,7 +297,7 @@ Stencil uses lazy loading — it fetches component JS chunks (`p-abc123.entry.js
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.5/dist/recipe-components/recipe-components.esm.js">
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.6/dist/recipe-components/recipe-components.esm.js">
 </script>
 ```
 
@@ -572,17 +573,14 @@ All responses are served with strict security headers configured in `vercel.json
 
 **File:** `recipe-app/src/lib/stores.ts` → `sanitize()` / `sanitizeRecipe()`
 
-When a user creates or edits a recipe, every text field goes through a two-pass sanitizer before it's written to localStorage:
+When a user creates or edits a recipe, every text field is passed through **[DOMPurify](https://github.com/cure53/DOMPurify)** before it is written to localStorage. DOMPurify is a battle-tested, OWASP-recommended HTML sanitizer used by Google, Mozilla, and GitHub:
 
 ```typescript
+import DOMPurify from 'dompurify';
+
 function sanitize(raw: string): string {
-  // Pass 1 — remove script/style blocks entirely (tag + inner content)
-  let out = raw
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-  // Pass 2 — strip remaining HTML tags, keep the visible text
-  out = out.replace(/<[^>]*>/g, '');
-  return out.trim();
+  // ALLOWED_TAGS:[] + ALLOWED_ATTR:[] → strips ALL HTML, keeps only visible text
+  return DOMPurify.sanitize(raw, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
 ```
 
@@ -604,8 +602,8 @@ The StencilJS component library is loaded from jsDelivr CDN. A SHA-384 integrity
 
 ```html
 <script type="module"
-  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.5/..."
-  integrity="sha384-9hM2BiS0BRJkzlTqZGU0Fv/QS7YGj3LK2VxHDW0Si5ekmw8sVOsnzEWpk+7wPeN3"
+  src="https://cdn.jsdelivr.net/npm/@piyushchandel/recipe-components@1.0.6/dist/recipe-components/recipe-components.esm.js"
+  integrity="sha384-<updated-for-v1.0.6>"
   crossorigin="anonymous"></script>
 ```
 
@@ -716,6 +714,25 @@ npm run test:coverage # V8 coverage report (text + json-summary)
 
 **Total: 45 unit tests — all passing ✅**
 
+### Stencil Component Tests (Jest)
+
+Component-level tests for the three interactive Stencil components, run with Stencil's built-in Jest runner:
+
+```bash
+cd recipe-components
+node node_modules/@stencil/core/bin/stencil test --spec
+```
+
+| File | Tests | What's covered |
+|---|---|---|
+| `src/components/recipe-card/recipe-card.spec.ts` | **5** | Renders host element, `recipeTitle` prop, category badge, user-recipe badge, `favoriteToggle` custom event payload |
+| `src/components/rating-stars/rating-stars.spec.ts` | **5** | Correct star count, filled/empty split for `value`, `disabled` HTML attribute on readonly mode, `ratingChange` event value, `showValue` text display |
+| `src/components/favorite-button/favorite-button.spec.ts` | **5** | Renders button element, `.is-favorite` class toggle, `favoriteToggle` event on click, label text |
+
+**Total: 15 Stencil spec tests — all passing ✅**
+
+---
+
 ### Setup
 
 `src/test-setup.ts` provides a full `localStorage` mock (get / set / remove / clear / length / key) for the jsdom environment, so Svelte store persistence can be tested without a real browser.
@@ -795,6 +812,8 @@ npm --prefix recipe-app run test:e2e
 npm run build     # Build for production
 npm run start     # Build in dev/watch mode
 npm run generate  # Generate a new component
+# Run Stencil unit tests (15 spec tests)
+node node_modules/@stencil/core/bin/stencil test --spec
 ```
 
 ### SvelteKit App (`recipe-app/`)
@@ -815,7 +834,7 @@ npm run test:e2e      # Playwright E2E smoke tests (12 tests, Chromium)
 ## 🔗 Links
 
 - **🚀 Deployed App:** https://recipe-finder-meal-planner-ten.vercel.app
-- **📦 npm Package (v1.0.5 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
+- **📦 npm Package (v1.0.6 — latest):** https://www.npmjs.com/package/@piyushchandel/recipe-components
 - **💻 GitHub:** https://github.com/NAGP-2026/recipe-finder-meal-planner
 - **🍽️ TheMealDB API Docs:** https://www.themealdb.com/api.php
 
