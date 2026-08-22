@@ -284,10 +284,11 @@ body::before {
   line-height: 1.65; font-family: 'Plus Jakarta Sans', sans-serif;
 }
 .hero-search { width: 100%; max-width: 640px; }
-/* Search bar: gradient border now handled inside the Stencil component via :host */
+/* Search bar: visible border — keeps the bar styled until v1.0.7 (gradient :host) is published to CDN */
 .hero-search search-bar {
   display: block;
-  border-radius: 102px; /* slightly larger to avoid clipping the gradient :host */
+  border-radius: 100px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
 .hero-quick-tags {
