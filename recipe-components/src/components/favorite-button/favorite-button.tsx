@@ -27,6 +27,8 @@ export class FavoriteButton {
         <button
           class={`fav-btn fav-${this.size} fav-${this.variant} ${this.isFavorite ? 'is-favorite' : ''}`}
           onClick={(e) => this.handleClick(e)}
+          aria-label={label}
+          aria-pressed={this.isFavorite}
           title={label}
         >
           <svg

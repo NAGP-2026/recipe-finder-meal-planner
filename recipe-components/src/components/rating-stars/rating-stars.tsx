@@ -47,6 +47,7 @@ export class RatingStars {
               onMouseEnter={() => this.handleMouseEnter(star)}
               onMouseLeave={() => this.handleMouseLeave()}
               disabled={this.readonly}
+              aria-label={`Rate ${star} star${star !== 1 ? 's' : ''} out of ${this.maxRating}`}
               title={`${star} star${star !== 1 ? 's' : ''}`}
             >
               <svg viewBox="0 0 24 24" fill={star <= displayRating ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="2">

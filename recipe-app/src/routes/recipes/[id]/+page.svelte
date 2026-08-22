@@ -206,16 +206,16 @@
 		<!-- Default slot: modal body content -->
 		<div class="slot-body">
 			<p class="recipe-name">📖 {recipe.title}</p>
-			<div class="picker-group">
-				<label>Day of the Week</label>
+		<div class="picker-group">
+				<p class="picker-label">Day of the Week</p>
 				<div class="day-grid">
 					{#each DAYS_OF_WEEK as day}
 						<button class="day-btn {selectedDay === day ? 'selected' : ''}" onclick={() => selectedDay = day}>{day.slice(0,3)}</button>
 					{/each}
 				</div>
 			</div>
-			<div class="picker-group">
-				<label>Meal Type</label>
+		<div class="picker-group">
+				<p class="picker-label">Meal Type</p>
 				<div class="meal-type-grid">
 					{#each MEAL_TYPES as type}
 						<button class="meal-type-btn {selectedMealType === type ? 'selected' : ''}" onclick={() => selectedMealType = type}>
@@ -420,7 +420,7 @@
 	}
 
 	.picker-group { margin-bottom: 20px; }
-	.picker-group label {
+	.picker-label {
 		display: block; font-size: 12px; font-weight: 700;
 		text-transform: uppercase; letter-spacing: 0.08em;
 		color: var(--text-muted); margin-bottom: 10px;

@@ -17,5 +17,14 @@ export default defineConfig({
 			provider: 'v8',
 			reporter: ['text', 'json-summary'],
 		},
+		// DOMPurify initialises against the browser DOM at import time.
+		// Inlining it ensures Vite transforms it inside the jsdom worker
+		// rather than loading it as an external CJS module, which avoids
+		// the "Timeout waiting for worker to respond" startup error.
+		server: {
+			deps: {
+				inline: ['dompurify'],
+			},
+		},
 	},
 });

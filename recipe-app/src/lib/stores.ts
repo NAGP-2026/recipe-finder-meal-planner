@@ -1,26 +1,19 @@
 import { writable, derived, get } from 'svelte/store';
+import DOMPurify from 'dompurify';
 import type { Recipe, MealPlan, MealSlot } from './types';
 
 // ─── XSS Sanitizer ─────────────────────────────────────────────────────────
 // Recipe fields (title, instructions, ingredient names) are plain text — no
-// HTML markup is ever intentional. This function ensures that malicious HTML
-// injected by a user can never reach localStorage or the DOM.
+// HTML markup is ever intentional. DOMPurify with empty allowlists strips
+// ALL tags and attributes, extracting only safe text content.
 //
-// Two-pass approach:
-//  1. Nuke script / style blocks completely (tag + all inner content)
-//  2. Strip any remaining HTML tags — keeps visible text between tags
+// Replaces the previous hand-rolled regex approach with a battle-tested library.
 //
 // Result: '<script>alert(1)</script>Pasta'  →  'Pasta'
 //         '<img src=x onerror=alert(1)> Mix well.'  →  'Mix well.'
 //         '<b>Bold</b> Chicken'  →  'Bold Chicken'
 function sanitize(raw: string): string {
-	// Pass 1 — remove executable blocks and their content
-	let out = raw
-		.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-		.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-	// Pass 2 — strip remaining tags, keep inner text
-	out = out.replace(/<[^>]*>/g, '');
-	return out.trim();
+	return DOMPurify.sanitize(raw, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] }).trim();
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────

@@ -142,8 +142,20 @@
 	</div>
 
 	{#if showMealPicker}
-		<div class="modal-backdrop" onclick={() => showMealPicker = false}>
-			<div class="meal-picker-modal" onclick={(e) => e.stopPropagation()}>
+		<div
+			class="modal-backdrop"
+			role="presentation"
+			onclick={() => showMealPicker = false}
+			onkeydown={(e) => { if (e.key === 'Escape') showMealPicker = false; }}
+		>
+			<div
+				class="meal-picker-modal"
+				role="dialog"
+				aria-modal="true"
+				aria-label="Add to meal plan"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.stopPropagation()}
+			>
 				<div class="modal-header">
 					<h3>Add to Meal Plan</h3>
 					<button onclick={() => showMealPicker = false} class="modal-close">✕</button>
@@ -151,7 +163,7 @@
 				<div class="modal-body">
 					<p class="recipe-name">📖 {recipe.title}</p>
 					<div class="picker-group">
-						<label>Day</label>
+						<p class="picker-label">Day</p>
 						<div class="day-grid">
 							{#each DAYS_OF_WEEK as day}
 								<button class="day-btn {selectedDay === day ? 'selected' : ''}" onclick={() => selectedDay = day}>{day.slice(0,3)}</button>
@@ -159,7 +171,7 @@
 						</div>
 					</div>
 					<div class="picker-group">
-						<label>Meal Type</label>
+						<p class="picker-label">Meal Type</p>
 						<div class="meal-type-grid">
 							{#each MEAL_TYPES as type}
 								<button class="meal-type-btn {selectedMealType === type ? 'selected' : ''}" onclick={() => selectedMealType = type}>
@@ -220,7 +232,7 @@
 	.modal-body { padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
 	.recipe-name { font-size: 15px; font-weight: 600; background: #f8fafc; padding: 12px; border-radius: 10px; }
 	.picker-group { display: flex; flex-direction: column; gap: 10px; }
-	.picker-group label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+	.picker-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
 	.day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 	.day-btn { padding: 8px 4px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; background: #f8fafc; color: var(--text-muted); }
 	.day-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }

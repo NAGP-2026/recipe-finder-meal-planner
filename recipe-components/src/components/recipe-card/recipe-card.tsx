@@ -59,7 +59,7 @@ export class RecipeCard {
               alt={this.recipeTitle}
               class="card-image"
               loading="lazy"
-              onError={(e: any) => { e.target.src = fallbackImg; }}
+              onError={(e: Event & { target: HTMLImageElement }) => { e.target.src = fallbackImg; }}
             />
             <div class="card-image-overlay"></div>
 

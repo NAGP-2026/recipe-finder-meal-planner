@@ -30,6 +30,7 @@
 		"vitest": "^2.0.0"
 	},
 	"dependencies": {
-		"@piyushchandel/recipe-components": "1.0.5"
+		"@piyushchandel/recipe-components": "1.0.5",
+		"dompurify": "^3.4.14"
 	}
 }
